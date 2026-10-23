@@ -50,4 +50,3 @@ GitHub-ready CI, Dependabot, issue templates, pull request template and contribu
 ## License
 
 MIT — see LICENSE. Preserve THIRD_PARTY_NOTICES.md and the bundled Three.js license when redistributing. See CHANGELOG.md and CONTRIBUTING.md for development details.
-

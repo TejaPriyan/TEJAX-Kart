@@ -1,0 +1,40 @@
+{
+  "id": "./",
+  "name": "TEJAX KART \u00e2\u20ac\u201d Apex Protocol",
+  "short_name": "TEJAX KART",
+  "description": "Six machines. Three circuits. Offline combat racing.",
+  "start_url": "./game.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b1118",
+  "theme_color": "#0b1118",
+  "categories": [
+    "games",
+    "entertainment"
+  ],
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "The garage",
+      "url": "./game.html"
+    },
+    {
+      "name": "Mobile guide",
+      "url": "./mobile.html"
+    }
+  ]
+}

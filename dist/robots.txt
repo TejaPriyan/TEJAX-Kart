@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tejax-kart-apex.greenlarch1024.chatgpt.site/sitemap.xml

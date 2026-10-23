@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Play • TEJAX KART / Apex Protocol</title>
+<meta name="description" content="Play TEJAX KART free in your browser: six 3D cars, three circuits, five modes, keyboard and mobile tilt controls. No desktop download required.">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="stylesheet" href="style.css">
+<meta name="theme-color" content="#0b1118"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="assets/icon.svg"><link rel="apple-touch-icon" href="assets/icon-192.png"><link rel="stylesheet" href="garage.css">
+<link rel="canonical" href="https://tejax-kart-apex.greenlarch1024.chatgpt.site/game.html"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:site_name" content="TEJAX KART"><meta property="og:title" content="Play • TEJAX KART / Apex Protocol"><meta property="og:description" content="Play TEJAX KART free in your browser: six 3D cars, three circuits, five modes, keyboard and mobile tilt controls. No desktop download required."><meta property="og:url" content="https://tejax-kart-apex.greenlarch1024.chatgpt.site/game.html"><meta property="og:image" content="https://tejax-kart-apex.greenlarch1024.chatgpt.site/assets/social-card.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="TEJAX KART Apex Protocol: six cars, three circuits, five game modes"><meta name="twitter:card" content="summary_large_image"><script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebPage", "@id": "https://tejax-kart-apex.greenlarch1024.chatgpt.site/game.html#page", "url": "https://tejax-kart-apex.greenlarch1024.chatgpt.site/game.html", "name": "Play • TEJAX KART / Apex Protocol", "description": "Play TEJAX KART free in your browser: six 3D cars, three circuits, five modes, keyboard and mobile tilt controls. No desktop download required.", "inLanguage": "en", "dateModified": "2026-10-23", "isPartOf": {"@id": "https://tejax-kart-apex.greenlarch1024.chatgpt.site/#website"}, "about": {"@id": "https://tejax-kart-apex.greenlarch1024.chatgpt.site/#game"}}, {"@type": "WebApplication", "name": "TEJAX KART: Apex Protocol", "url": "https://tejax-kart-apex.greenlarch1024.chatgpt.site/game.html", "applicationCategory": "GameApplication", "operatingSystem": "Windows, macOS, Linux, Android, iOS", "browserRequirements": "JavaScript and WebGL enabled; HTTPS and motion sensors for tilt controls", "softwareVersion": "6.2.0", "isAccessibleForFree": true}]}</script></head><body>
+<canvas id="c" aria-label="3D race view"></canvas>
+<div id="hud" hidden>
+ <div id="top"><span id="pos">1/6</span><span id="lap">Lap 1/3</span><span id="bestlap"></span><span id="wx"></span><span id="png"></span><span id="tm">0:00.0</span><button id="mubtn" title="Toggle sound" aria-label="Toggle sound">🔊</button><button id="hud-pause" aria-label="Open pause menu">Ⅱ</button></div>
+ <canvas id="mm" width="170" height="170"></canvas>
+ <div id="bl"><div id="spd">0</div><small>km/h</small>
+  <div class="bar"><i id="hp"></i></div><div class="bar b"><i id="bo"></i></div><div id="ms">Missile ready</div><div id="auto-status"></div><div id="power-status" role="status"></div>
+  <div id="ult-badge"><div id="ult-hdr"><span id="ult-name">ULTIMATE</span><span id="ult-status">READY [X]</span></div><div class="bar u"><i id="ult-bar"></i></div></div>
+ </div>
+ <div id="crosshair">
+  <div class="ch-bracket ch-tl"></div>
+  <div class="ch-bracket ch-tr"></div>
+  <div class="ch-bracket ch-bl"></div>
+  <div class="ch-bracket ch-br"></div>
+  <div class="ch-dot"></div>
+  <div id="ch-lead"></div>
+  <div id="ch-tag"></div>
+ </div>
+ <div id="tgt-card" hidden>
+  <div id="tgt-hdr"><span id="tgt-icon">🎯</span> <span id="tgt-name">VIPER</span> <span id="tgt-dist">42m</span></div>
+  <div class="tgt-bar"><i id="tgt-hp"></i></div>
+ </div>
+ <div id="leaderboard"></div>
+ <div id="lk" hidden></div><div id="warn" hidden>Missile incoming</div><div id="cd"></div><div id="sl"></div><div id="flash"></div>
+ <div id="empfl"></div>
+ <div id="kf"></div>
+ <div id="caminfo"></div><span id="fps"></span>
+</div>
+<div id="menu" role="main" aria-label="Game garage">
+ <header class="garage-header"><a class="wordmark" href="index.html">T<span>↗</span> TEJAX<span>KART</span></a><span class="edition">APEX PROTOCOL / 06</span><button id="open-settings" class="icon-btn" aria-label="Open settings">⚙</button></header>
+ <main class="garage-main">
+ <div class="eyebrow">THE GARAGE <span>01 — CONFIGURE YOUR RUN</span></div>
+ <h1>BUILT TO<br><em>BREAK AWAY.</em></h1>
+ <div class="setup-section"><div class="section-title"><span>01 / CIRCUIT</span><small id="track-info">NEON STREETS · TECHNICAL</small></div><div id="tracks"></div></div>
+ <div class="setup-section"><div class="section-title"><span>02 / DISCIPLINE</span><button class="text-btn" id="help-open">How to play ↗</button></div><div id="modes"></div><p id="mode-info">Three laps. Weapons live. Make every corner count.</p></div>
+ <div class="setup-section"><div class="section-title"><span>03 / YOUR MACHINE</span><small>6 SPECIALISTS</small></div><div id="cars"></div></div>
+ <div class="paint-row"><span class="eyebrow">LIVERY</span><div id="paints"></div></div>
+ <div class="launch-row"><button id="go">START YOUR ENGINE <span>↗</span></button><button id="online-open" class="secondary">LAN ROOM</button></div>
+ <div class="garage-foot"><span id="career">YOUR CAREER STARTS HERE</span><span>WASD / ARROWS · TOUCH READY</span><span id="offline-status" role="status">CONNECT ONCE TO SAVE SOLO PLAY OFFLINE</span></div>
+ </main>
+ <aside class="vehicle-caption"><span class="eyebrow">YOUR SELECTED MACHINE</span><h2 id="vehicle-name">SCOUT</h2><span id="vehicle-desc">Lightweight interceptor</span><div class="specs"><span><b id="v-speed">248</b> KM/H BASE</span><span><b id="v-armor">80</b> ARMOR INDEX</span></div><small>LIVE 3D PREVIEW · AUTOMATIC TURNTABLE</small></aside>
+</div>
+<dialog id="settings"><form method="dialog"><div class="dialog-head"><div><span class="eyebrow">MAKE IT YOURS</span><h2>Driver settings</h2></div><button class="icon-btn" aria-label="Close settings">×</button></div></form>
+ <label>Graphics quality<select id="quality"><option value="low">Performance</option><option value="medium">Balanced</option><option value="high">High detail</option></select></label>
+ <label>AI difficulty<select id="difficulty"><option value="rookie">Rookie</option><option value="normal">Challenger</option><option value="expert">Expert</option></select></label>
+ <label>Weather<select id="weather"><option value="clear">Clear</option><option value="rain">Rain</option><option value="storm">Storm</option><option value="dynamic">Changing conditions</option></select></label>
+ <label>Master volume<input type="range" id="volume" min="0" max="100"></label>
+ <label class="check">Camera shake & speed effects<input type="checkbox" id="motion"></label><label class="check">Show frame rate<input type="checkbox" id="show-fps"></label>
+ <label class="check">Auto-fire at detected rivals<input type="checkbox" id="auto-fire" checked></label><p class="muted">Blasters automatically aim and fire at visible rivals ahead. Turn this off for manual F / touch fire. Missiles still use E. Weapons are disabled in Race and Time trial.</p><fieldset class="tilt-settings"><legend>Mobile tilt steering</legend><p>Hold your phone comfortably, then enable motion. Tilt left to steer left and right to steer right. Use landscape for more space.</p><div class="tilt-actions"><button type="button" id="enable-tilt">ENABLE TILT</button><button type="button" id="calibrate-tilt" class="secondary">CALIBRATE</button><button type="button" id="disable-tilt" class="secondary">USE TOUCH</button></div><p id="tilt-status" role="status" aria-live="polite">Touch steering is available. Motion data stays on your device.</p><label>Tilt sensitivity<input type="range" id="tilt-sensitivity" min="12" max="45" value="25"></label><label class="check">Auto-accelerate with tilt<input type="checkbox" id="tilt-auto" checked></label><label class="check">Invert tilt direction<input type="checkbox" id="tilt-invert"></label></fieldset><div class="key-settings"><label>Accelerate<input id="key-gas" readonly aria-label="Remap accelerate" value="KeyW"></label><label>Brake<input id="key-brake" readonly value="KeyS"></label><label>Left<input id="key-left" readonly value="KeyA"></label><label>Right<input id="key-right" readonly value="KeyD"></label></div><p class="muted">Click a key field, then press a letter. Arrow keys always work. Settings save on this device.</p><button type="button" id="save-settings">SAVE SETTINGS ↗</button>
+</dialog>
+<dialog id="help"><form method="dialog"><div class="dialog-head"><h2>Find your racing line.</h2><button class="icon-btn" aria-label="Close instructions">×</button></div></form><div class="controls-grid"><span>Accelerate / steer</span><kbd>WASD / ↑↓←→</kbd><span>Drift through corners</span><kbd>SPACE</kbd><span>Boost</span><kbd>SHIFT</kbd><span>Blaster / missile</span><kbd>F / E</kbd><span>Mine / EMP / oil</span><kbd>Q / T / G</kbd><span>Signature ability</span><kbd>X / Z</kbd><span>Camera / pause</span><kbd>C / ESC</kbd><span>Restart solo run</span><kbd>R</kbd></div><p>On mobile, open Settings → Enable tilt, allow motion access, and calibrate while holding the phone comfortably. Tilt steers; auto-accelerate is optional. Hold BRAKE to slow or reverse. Touch joystick steering remains available. Use landscape for more room. Race and Time trial have no weapons. Combat is three laps; Elimination is last driver standing; Survival adds tougher waves.</p><p class="muted">Eight labeled pickups: Repair, Nitro, Shield, Missile reload, Rapid fire (10s), Plasma rounds (8s), Pickup magnet (12s), and Ability recharge. Pure racing modes use only repair, nitro and shields. Auto-fire detects visible rivals ahead; turn it off in Settings for manual fire. Stay on the track and cross checkpoints in order. In LAN races, mines and oil are unavailable; the pit menu does not pause other drivers.</p></dialog>
+<dialog id="online"><form method="dialog"><div class="dialog-head"><h2>Bring your rivals.</h2><button class="icon-btn" aria-label="Close multiplayer">×</button></div></form><p>Play with 2–6 drivers using a self-hosted LAN server. For local multiplayer, a host runs the repository’s Node.js server and shares its address on the same Wi-Fi.</p><label>Driver name<input id="driver-name" maxlength="16" placeholder="Your callsign" value="Racer"></label><label>Server address<input id="server-url" placeholder="Automatic on the LAN server, or wss://your-server"></label><label>Room code<input id="room-code" maxlength="10" placeholder="TK-ABC123"></label><div id="modes2"><button id="mpc">CREATE ROOM</button><button id="mpj" class="secondary">JOIN ROOM</button></div><p id="net-status" role="status">Solo play works without a server.</p><a href="how-to-play.html#multiplayer">LAN setup instructions ↗</a></dialog>
+<div id="lob" hidden><h2 id="lc"></h2><p>Share this code with drivers on the same server.</p><p id="lobby-note"></p><div id="lp"></div><button id="ls">START MATCH ↗</button><button id="leave-room" class="secondary">Leave room</button></div><div id="end" hidden><h2 id="et"></h2><p id="es"></p><button id="again">RACE AGAIN ↗</button><button id="results-menu" class="secondary">Back to garage</button></div>
+<div id="pause" hidden><div id="pausebox"><h2 id="pause-label">PAUSED</h2><button id="resume">Resume</button><button id="p-mute">Audio: ON 🔊</button><button id="pit-tilt" class="secondary">Tilt steering settings</button><button id="quitm">Quit to Menu</button></div></div>
+<div id="touch" hidden>
+ <div id="pedals"><button class="pedal" id="tbrake" aria-label="Brake or reverse">BRAKE</button><button class="pedal" id="tgas" aria-label="Accelerate">GAS</button></div><button id="quick-calibrate" aria-label="Recalibrate tilt steering">CENTER TILT</button><div id="tjoy"><div id="tjknob"></div></div>
+ <div id="tbtns">
+  <button class="tb" id="tboost" aria-label="Boost">⚡</button>
+  <button class="tb" id="tfire" aria-label="Fire blaster">🔫</button>
+  <button class="tb" id="tmsl" aria-label="Launch missile">🚀</button>
+  <button class="tb" id="tdrift" aria-label="Drift">⟳</button>
+  <button class="tb tb-ult" id="tult" aria-label="Ultimate">ULT</button><button class="tb" id="tmine" aria-label="Drop mine">MINE</button><button class="tb" id="temp" aria-label="EMP blast">EMP</button><button class="tb" id="toil" aria-label="Drop oil">OIL</button><button class="tb" id="tcam" aria-label="Change camera">CAM</button>
+ </div>
+</div>
+<button id="apply-update" hidden>UPDATE GAME ↻</button><div id="toast" role="status" hidden></div><div id="load-error" hidden><h2>Let’s get you back on track.</h2><p id="error-message">Graphics could not start. Try a browser with WebGL enabled.</p><a href="index.html">Return to the website</a></div><script src="core.js"></script><script src="combat.js"></script><script src="tilt.js"></script><script src="ui.js"></script><script src="vendor/three.min.js"></script>
+<script src="net.js"></script><noscript><p class="no-script">JavaScript is needed for the 3D game. <a href="how-to-play.html">Read the controls and installation guide.</a></p></noscript><script src="game.js"></script><script src="install.js"></script></body></html>

@@ -1,0 +1,28 @@
+name: Bug report
+description: Report a reproducible gameplay, installation or website problem.
+title: "[Bug] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include car, circuit, mode, control method and relevant settings.
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device, operating system and browser version
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots or error messages
+      description: Remove personal information and server credentials.

@@ -1,0 +1,13 @@
+# TEJAX KART: Apex Protocol
+
+> Free 3D browser racing game. Six cars, three circuits, five solo modes. Edition 6.2, updated 2026-10-23.
+
+- [Play](https://tejax-kart-apex.greenlarch1024.chatgpt.site/game.html): Desktop users play in the browser; no Windows package.
+- [Controls and game modes](https://tejax-kart-apex.greenlarch1024.chatgpt.site/how-to-play.html): Keyboard, touch, checkpoints, vehicles and LAN setup.
+- [Mobile installation and tilt](https://tejax-kart-apex.greenlarch1024.chatgpt.site/mobile.html): Installable web app for Android and iOS; motion permission, calibration and offline instructions.
+- [Game facts](https://tejax-kart-apex.greenlarch1024.chatgpt.site/about.html): Supported platforms, modes and credits.
+- [Privacy](https://tejax-kart-apex.greenlarch1024.chatgpt.site/privacy.html): Local progress, on-device motion processing and optional LAN networking.
+
+## Accurate descriptions
+
+The mobile app is a PWA, not an APK/IPA or app-store release. Offline solo play requires completed caching. Public matchmaking is not included; multiplayer requires a separately hosted server. All cars and paints are unlocked. No accounts, cloud saves or purchases are implemented. Frame rate and motion support depend on hardware and browser. This optional file is a reading aid, not a search-engine standard or ranking guarantee.
