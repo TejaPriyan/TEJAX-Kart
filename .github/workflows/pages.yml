@@ -15,6 +15,11 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
+    outputs:
+      source: ${{ steps.source.outputs.build_type }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,12 +31,19 @@ jobs:
       - run: npm run check
       - run: npm test
       - uses: actions/configure-pages@v5
+      - name: Read the selected Pages publishing source
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api "repos/$GITHUB_REPOSITORY/pages" --jq '"build_type=" + .build_type' >> "$GITHUB_OUTPUT"
       - uses: actions/upload-pages-artifact@v4
         with:
           path: dist
 
   deploy:
     needs: build
+    # Branch publishing already has a deployment; do not race it with another.
+    if: needs.build.outputs.source == 'workflow'
     runs-on: ubuntu-latest
     permissions:
       pages: write
