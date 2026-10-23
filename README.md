@@ -39,7 +39,7 @@ Race and Time trial disable weapons. Combat is a three-lap race, Elimination is 
 
 ### GitHub Pages
 
-In repository Settings → Pages, select **GitHub Actions** as the source. `.github/workflows/pages.yml` builds and checks the game, uploads only `dist/`, and publishes it after pushes to `main`. The project URL is https://tejapriyan.github.io/TEJAX-Kart/. Publishing `main / (root)` does not publish the game because its HTML and assets are inside `dist/`.
+In repository Settings → Pages, select **GitHub Actions** as the source. `.github/workflows/pages.yml` builds and checks the game, uploads only `dist/`, and publishes it after pushes to `main`. The project URL is https://tejapriyan.github.io/TEJAX-Kart/. For an existing `main / (root)` source, the root `index.html` forwards visitors to the game website in `dist/`, and `.nojekyll` preserves the static files. The Actions source is preferred because it publishes only the game assets.
 
 ### Vercel
 
