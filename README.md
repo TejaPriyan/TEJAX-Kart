@@ -1,6 +1,6 @@
 # TEJAX KART — Apex Protocol
 
-Free 3D arcade racing for desktop browsers and an installable mobile web app, with six cars, three circuits, five solo modes and optional LAN multiplayer.
+Free 3D arcade racing for desktop browsers and an installable mobile web app, with six cars, three circuits, five solo modes and optional LAN multiplayer. TEJAX KART is a racing game website.
 
 ## Play
 
@@ -36,6 +36,18 @@ W/Up accelerates; S/Down brakes or reverses; A/Left steers left; D/Right steers 
 Race and Time trial disable weapons. Combat is a three-lap race, Elimination is last-driver-standing, and Survival adds enemy waves. Ordered checkpoints prevent shortcut finishes. All cars and paints are unlocked; credits are local career scores, not currency.
 
 ## Project and deployment
+
+### GitHub Pages
+
+In repository Settings → Pages, select **GitHub Actions** as the source. `.github/workflows/pages.yml` builds and checks the game, uploads only `dist/`, and publishes it after pushes to `main`. The project URL is https://tejapriyan.github.io/TEJAX-Kart/. Publishing `main / (root)` does not publish the game because its HTML and assets are inside `dist/`.
+
+### Vercel
+
+Import this repository with the repository root as Root Directory. `vercel.json` selects the **Other** framework preset, runs `npm run build && npm run check`, and publishes `dist/` as static files. The existing project domain is https://tejax-kart.vercel.app/. The browser runs the game; the optional LAN `server.js` is excluded from Vercel uploads. Do not configure a catch-all server function or Express preset for this static deployment.
+
+Use this repository description: **Free 3D arcade racing game with automatic combat targeting, six cars, three circuits, and installable mobile tilt controls.** Suggested topics: `racing-game`, `threejs`, `webgl`, `browser-game`, `pwa`, `javascript`.
+
+### Existing Sites publication and SEO
 
 `dist/` is the complete static site. Host it over HTTPS. `.openai/hosting.json` binds this working copy to its existing Sites project; do not create another project for routine updates. Keep the canonical origin in the HTML, sitemap.xml, robots.txt, llms.txt and scripts/check.js aligned if you move domains. Rebuild after any shipped file change: `npm run build` hashes the assets and generates `dist/sw.js`. Users activate new versions with the Update game button between races.
 
