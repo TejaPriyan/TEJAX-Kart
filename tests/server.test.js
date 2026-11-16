@@ -1,8 +1,28 @@
 const test=require('node:test'),assert=require('node:assert/strict'),{once}=require('node:events'),{WebSocket}=require('ws');
-const {server,wss,rooms,message}=require('../server');
-test('real WebSocket room lifecycle and authority checks',async t=>{
+const {server,wss,rooms,message,isAllowedOrigin}=require('../server');
+test('real WebSocket room lifecycle, security, and authority checks',async t=>{
  await new Promise(r=>server.listen(0,'127.0.0.1',r));const port=server.address().port,clients=[];
- t.after(async()=>{clients.forEach(s=>s.terminate());wss.clients.forEach(s=>s.terminate());await new Promise(r=>server.close(r))});
+ t.after(async()=>{delete process.env.ALLOWED_ORIGINS;delete process.env.IDLE_JOIN_TIMEOUT_MS;clients.forEach(s=>s.terminate());wss.clients.forEach(s=>s.terminate());await new Promise(r=>server.close(r))});
+ await t.test('origin allowlist and idle unjoined timeout',async()=>{
+  assert.equal(isAllowedOrigin(undefined,'example.com'),true);
+  assert.equal(isAllowedOrigin('http://localhost:3000','192.168.1.5:3000'),true);
+  assert.equal(isAllowedOrigin('https://192.168.1.5:3000','192.168.1.5:3000'),true);
+  assert.equal(isAllowedOrigin('https://evil.example','192.168.1.5:3000'),false);
+  process.env.ALLOWED_ORIGINS='https://tejax-kart.vercel.app';
+  assert.equal(isAllowedOrigin('https://tejax-kart.vercel.app','192.168.1.5:3000'),true);
+  await new Promise((resolve,reject)=>{
+   const ws=new WebSocket('ws://127.0.0.1:'+port,{headers:{Origin:'https://evil.example'}});
+   ws.on('unexpected-response',(_req,res)=>{assert.equal(res.statusCode,403);resolve()});
+   ws.on('open',()=>reject(new Error('Disallowed Origin should be rejected')));
+   ws.on('error',()=>{});
+  });
+  process.env.IDLE_JOIN_TIMEOUT_MS='60';
+  const idleWs=new WebSocket('ws://127.0.0.1:'+port);
+  await once(idleWs,'open');
+  const [code]=await once(idleWs,'close');
+  assert.equal(code,1008);
+  delete process.env.IDLE_JOIN_TIMEOUT_MS;
+ });
  async function connect(){const ws=new WebSocket('ws://127.0.0.1:'+port),queue=[];let waiter;ws.on('message',b=>{const m=JSON.parse(b);if(waiter&&waiter.type===m.t){const f=waiter;waiter=null;clearTimeout(f.timer);f.resolve(m)}else queue.push(m)});await once(ws,'open');clients.push(ws);return {ws,send:m=>ws.send(JSON.stringify(m)),next:type=>{const index=queue.findIndex(m=>m.t===type);if(index>=0)return Promise.resolve(queue.splice(index,1)[0]);return new Promise((resolve,reject)=>{waiter={type,resolve,timer:setTimeout(()=>reject(Error('Timeout: '+type)),2000)}})}}}
  const a=await connect();a.send({t:'create',name:'Host',car:-1,track:0});assert.match((await a.next('err')).m,/vehicle/);assert.equal(rooms.size,0);
  a.send({t:'create',name:'<Host>',car:4,track:2,paint:'#b6ff3b'});const room=await a.next('room');assert.equal(room.players[0].name,'Host');assert.equal(room.players[0].car,4);

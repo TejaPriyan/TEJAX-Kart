@@ -14,7 +14,19 @@ const server=http.createServer((req,res)=>{
  if(!target.startsWith(root+path.sep)||pathname.includes('\\')||!mime[path.extname(target)]){res.writeHead(404);return res.end('Not found')}
  fs.stat(target,(err,stat)=>{if(err||!stat.isFile()){res.writeHead(404);return res.end('Not found')}res.writeHead(200,{'Content-Type':mime[path.extname(target)],'Content-Length':stat.size,'X-Content-Type-Options':'nosniff','Cache-Control':'no-cache'});if(req.method==='HEAD')res.end();else fs.createReadStream(target).pipe(res)})
 });
-const wss=new WebSocketServer({server,maxPayload:4096,perMessageDeflate:false});
+function isAllowedOrigin(origin,hostHeader){
+ if(!origin)return true;
+ const extra=String(process.env.ALLOWED_ORIGINS||'').split(',').map(v=>v.trim()).filter(Boolean);
+ if(extra.includes(origin))return true;
+ try{
+  const u=new URL(origin);
+  if(u.protocol!=='http:'&&u.protocol!=='https:')return false;
+  if(hostHeader&&u.host.toLowerCase()===String(hostHeader).toLowerCase())return true;
+  return ['localhost','127.0.0.1','[::1]','::1'].includes(u.hostname.toLowerCase());
+ }catch{return false}
+}
+const getIdleJoinTimeoutMs=()=>{const v=Number(process.env.IDLE_JOIN_TIMEOUT_MS);return Number.isFinite(v)&&v>0?v:15000};
+const wss=new WebSocketServer({server,maxPayload:4096,perMessageDeflate:false,verifyClient:({origin,req},cb)=>cb(isAllowedOrigin(origin,req?.headers?.host),403,'Forbidden')});
 function send(s,m){if(s.readyState===WebSocket.OPEN&&s.bufferedAmount<128*1024)s.send(JSON.stringify(m))}
 function broadcast(r,m,except){for(const s of r.players)if(s!==except)send(s,m)}
 function info(r){for(const s of r.players)send(s,{t:'room',code:r.code,you:s.id,host:r.players[0].id,players:r.players.map(p=>({id:p.id,name:p.name,car:p.car,paint:p.paint}))})}
@@ -31,7 +43,7 @@ function message(s,m){if(!m||typeof m!=='object'||typeof m.t!=='string')return;c
   if(!Core.validCar(m.car))return send(s,{t:'err',m:'Choose a valid vehicle.'});
   let r;if(m.t==='create'){if(rooms.size>=100)return send(s,{t:'err',m:'Server is busy.'});if(!Number.isInteger(m.track)||m.track<0||m.track>=tracks.length)return;let code;do{code='TK-'+crypto.randomBytes(3).toString('hex').toUpperCase()}while(rooms.has(code));r={code,players:[],live:false,track:m.track};rooms.set(code,r)}
   else {r=rooms.get(String(m.code||'').toUpperCase());if(!r||r.players.length>=6||r.live)return send(s,{t:'err',m:'Room not found, full, or already racing.'})}
-  leave(s);s.name=String(m.name||'Racer').replace(/[<>\x00-\x1f]/g,'').slice(0,16)||'Racer';s.car=m.car;s.paint=/^#[a-f0-9]{6}$/i.test(m.paint)?m.paint:'#b6ff3b';s.room=r;r.players.push(s);info(r);return;
+  leave(s);s.name=String(m.name||'Racer').replace(/[<>\x00-\x1f]/g,'').slice(0,16)||'Racer';s.car=m.car;s.paint=/^#[a-f0-9]{6}$/i.test(m.paint)?m.paint:'#b6ff3b';s.room=r;r.players.push(s);if(s.idleTimer){clearTimeout(s.idleTimer);s.idleTimer=null}info(r);return;
  }
  const r=s.room;if(!r)return;
  if(m.t==='start'){if(r.players[0]===s&&r.players.length>=2&&!r.live)start(r);return}
@@ -73,7 +85,7 @@ function message(s,m){if(!m||typeof m!=='object'||typeof m.t!=='string')return;c
   broadcast(r,{t:'pickup',index:m.index,id:s.id});health(s);
  }
 }
-wss.on('connection',s=>{s.id=++uid;s.rateAt=Date.now();s.rate=0;s.alive=true;s.on('pong',()=>s.alive=true);s.on('message',data=>{try{message(s,JSON.parse(data))}catch{send(s,{t:'err',m:'Invalid message.'})}});s.on('close',()=>leave(s));s.on('error',()=>{});if(wss.clients.size>600)s.close(1013,'Server busy')});
+wss.on('connection',s=>{s.id=++uid;s.rateAt=Date.now();s.rate=0;s.alive=true;s.idleTimer=setTimeout(()=>{if(!s.room&&s.readyState===WebSocket.OPEN)s.close(1008,'Idle join timeout')},getIdleJoinTimeoutMs());s.idleTimer.unref?.();s.on('pong',()=>s.alive=true);s.on('message',data=>{try{message(s,JSON.parse(data))}catch{send(s,{t:'err',m:'Invalid message.'})}});s.on('close',()=>{if(s.idleTimer){clearTimeout(s.idleTimer);s.idleTimer=null}leave(s)});s.on('error',()=>{});if(wss.clients.size>600)s.close(1013,'Server busy')});
 let last=Date.now();const tick=setInterval(()=>{const now=Date.now(),dt=Math.min(.1,(now-last)/1000);last=now;for(const r of rooms.values()){if(!r.live)continue;for(const s of r.players){if(s.deadUntil&&now>=s.deadUntil){s.deadUntil=0;s.hp=100;health(s)}}
  for(let i=0;i<r.players.length;i++)for(let j=i+1;j<r.players.length;j++){const a=r.players[i],b=r.players[j],key=a.id+':'+b.id;if(a.deadUntil>now||b.deadUntil>now||now<(r.contacts.get(key)||0)||Math.hypot(a.state.x-b.state.x,a.state.z-b.state.z)>=3.6)continue;r.contacts.set(key,now+650);for(const [attacker,victim]of[[a,b],[b,a]])if(attacker.abilityUntil>now&&[0,1].includes(ABILITY[attacker.car]))damage(victim,ABILITY[attacker.car]===0?15:28,attacker)}
  for(const p of r.shots){if(now>=p.until)continue;const ox=p.x,oy=p.y,oz=p.z;if(p.ty){if(p.target&&(p.target.deadUntil>now||ABILITY[p.target.car]===2&&p.target.abilityUntil>now))p.target=null;if(p.target&&p.target.deadUntil<=now){let e=Math.atan2(p.target.state.x-p.x,p.target.state.z-p.z)-p.a;e=Math.atan2(Math.sin(e),Math.cos(e));p.a+=Core.clamp(e,-2.5*dt,2.5*dt);p.y+=Core.clamp(tracks[r.track][p.target.state.idx].y+1.2-p.y,-30*dt,30*dt)}p.speed=Math.min(130,p.speed+50*dt)}else{const points=tracks[r.track];let best=p.idx;for(let k=-4;k<=4;k++){const i=(p.idx+k+500)%500;if(Math.hypot(points[i].x-p.x,points[i].z-p.z)<Math.hypot(points[best].x-p.x,points[best].z-p.z))best=i}p.idx=best;p.y+=p.vy*dt}p.x+=Math.sin(p.a)*p.speed*dt;p.z+=Math.cos(p.a)*p.speed*dt;
@@ -84,4 +96,4 @@ let last=Date.now();const tick=setInterval(()=>{const now=Date.now(),dt=Math.min
 const heartbeat=setInterval(()=>{for(const s of wss.clients){if(!s.alive){s.terminate();continue}s.alive=false;s.ping()}},30000);
 server.on('close',()=>{clearInterval(tick);clearInterval(heartbeat);wss.close()});
 if(require.main===module)server.listen(process.env.PORT||3000,'0.0.0.0',()=>console.log('TEJAX KART — http://localhost:'+(process.env.PORT||3000)));
-module.exports={server,wss,rooms,message};
+module.exports={server,wss,rooms,message,isAllowedOrigin};
