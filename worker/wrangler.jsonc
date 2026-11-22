@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tejax-kart-mp",
+  "main": "worker.js",
+  "compatibility_date": "2025-05-01",
+  "durable_objects": {
+    "bindings": [
+      { "name": "RACE_ROOM", "class_name": "RaceRoom" },
+      { "name": "MATCHMAKER", "class_name": "Matchmaker" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["RaceRoom", "Matchmaker"] }
+  ],
+  "vars": {
+    "ALLOWED_ORIGINS": "https://tejax-kart.vercel.app,https://tejapriyan.github.io"
+  }
+}

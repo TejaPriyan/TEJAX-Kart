@@ -43,7 +43,14 @@ test('real WebSocket room lifecycle, security, and authority checks',async t=>{
  for(const index of [4,5,6,7]){const pickup=r.pickups[index],pt=points[pickup.idx],prev=points[(pickup.idx+499)%500],next=points[(pickup.idx+1)%500],dx=next.x-prev.x,dz=next.z-prev.z,l=Math.hypot(dx,dz);host.state={...host.state,idx:pickup.idx,x:pt.x+dz/l*pickup.lat,z:pt.z-dx/l*pickup.lat};message(host,{t:'pickup',index});assert.ok(pickup.ready>Date.now())}
  assert.ok(host.rapidUntil>Date.now());assert.ok(host.plasmaUntil>Date.now());assert.ok(host.magnetUntil>Date.now());assert.ok(host.abilityReady<=Date.now());
  host.state={...host.state,idx:3,x:points[3].x,z:points[3].z,h:Math.atan2(points[9].x-points[3].x,points[9].z-points[3].z)};guest.state={...guest.state,idx:9,x:points[9].x,z:points[9].z};host.gunReady=0;message(host,{t:'ev',k:0,a:999,tg:guest.id});const shot=r.shots.at(-1);assert.equal(shot.damage,9);assert.ok(Math.abs(shot.a-host.state.h)<.5,'server computes aim instead of trusting arbitrary input');assert.ok(host.gunReady-Date.now()<=45);const count=r.shots.length;message(host,{t:'ev',k:0,a:0});assert.equal(r.shots.length,count,'rapid fire still has a cooldown');
- a.send({t:'rematch'});await a.next('reset');assert.equal(r.live,false);a.send({t:'start'});await a.next('go');assert.equal(r.live,true);assert.equal(host.lap,0);
+ a.send({t:'rematch'});await a.next('reset');await a.next('room');await b.next('reset');await b.next('room');assert.equal(r.live,false);
+ // Phase 3 lobby upgrades: ready, config, quick-chat, public rooms & quickmatch REST APIs
+ b.send({t:'ready'});const rReady=await a.next('room');await b.next('room');assert.equal(rReady.players[1].ready,true);
+ a.send({t:'config',track:0,mode:2,fillBots:true,isPublic:true});const rCfg=await b.next('room');await a.next('room');assert.equal(rCfg.track,0);assert.equal(rCfg.mode,2);assert.equal(rCfg.fillBots,true);
+ a.send({t:'chat',i:0});const chatMsg=await b.next('chat');assert.equal(chatMsg.text,'🏁 Ready!');
+ const pubRooms=await fetch('http://127.0.0.1:'+port+'/api/rooms').then(x=>x.json());assert.ok(pubRooms.rooms.some(x=>x.code===room.code));
+ const qm=await fetch('http://127.0.0.1:'+port+'/api/quickmatch',{method:'POST'}).then(x=>x.json());assert.equal(qm.action,'join');assert.equal(qm.code,room.code);
+ a.send({t:'start'});const go2=await a.next('go');assert.equal(r.live,true);assert.equal(host.lap,0);assert.equal(go2.botCount,4);
  const response=await fetch('http://127.0.0.1:'+port+'/game.html');assert.equal(response.status,200);assert.match(await response.text(),/START YOUR ENGINE/);assert.equal((await fetch('http://127.0.0.1:'+port+'/../package.json')).status,404);
  const sitemap=await fetch('http://127.0.0.1:'+port+'/sitemap.xml');assert.match(sitemap.headers.get('content-type'),/xml/);assert.match(await sitemap.text(),/<urlset/);assert.equal((await fetch('http://127.0.0.1:'+port+'/downloads/tejax-kart-offline.zip')).status,404);
 });

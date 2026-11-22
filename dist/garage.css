@@ -53,4 +53,28 @@ dialog{width:min(540px,calc(100vw - 28px));max-height:90dvh;overflow:auto;backgr
 @keyframes dmgFloat{0%{opacity:1;transform:translate(-50%,-50%) scale(1.25)}100%{opacity:0;transform:translate(-50%,-150%) scale(.9)}}
 #mm{background:#08121bd4;border:1px solid #ffffff26;box-shadow:0 10px 30px #0008,inset 0 0 20px #19e6ff12;backdrop-filter:blur(6px)}
 #menu{cursor:grab}#menu.dragging{cursor:grabbing}
+/* Phase 3 Online Multiplayer, Room Browser, Global Leaderboard & Lobby */
+.mp-tabs{display:flex;gap:6px;margin-bottom:14px}
+.mp-tab{flex:1;padding:9px;font-size:11px;background:#14212e;color:#9eb0c0;border:1px solid #ffffff1a}
+.mp-tab.on{background:#b6ff3b1a;border-color:#b6ff3b;color:#b6ff3b}
+.mp-quick-btn{width:100%;padding:14px 16px;font-weight:800;margin:8px 0 12px;background:#b6ff3b;color:#08121b}
+.mp-split{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.mp-split label{flex:1;margin:4px 0}
+.mp-sec-head{display:flex;justify-content:space-between;align-items:center;margin:14px 0 6px}
+.mp-list{display:flex;flex-direction:column;gap:6px;max-height:190px;overflow:auto;padding:4px 0}
+.mp-row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:#14212e;border:1px solid #ffffff14;border-radius:5px;font-size:12px}
+.mp-row b{color:#fff}.mp-row small{color:#8fa3b5;font-size:10px}.mp-row button{margin-left:auto;padding:6px 12px;font-size:10px}
+.mp-adv{margin-top:12px;font-size:11px;color:#8fa3b5}.mp-adv summary{cursor:pointer;margin-bottom:6px}
+.mp-lb-tracks{display:flex;gap:6px;margin-bottom:10px}
+.lb-trk{flex:1;padding:7px;font-size:10px;background:#14212e;color:#9eb0c0;border:1px solid #ffffff1a}
+.lb-trk.on{background:#19e6ff1a;border-color:#19e6ff;color:#19e6ff}
+.lob-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center}
+.lob-cfg{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:center;background:#121e2b;border:1px solid #ffffff18;border-radius:8px;padding:10px 16px;max-width:680px}
+.lob-cfg label{display:flex;align-items:center;gap:8px;font-size:11px;color:#b8c8d8}
+.lob-cfg select{padding:6px 8px;font-size:11px}
+.lob-chat-box{width:min(440px,92vw);background:#0f1924;border:1px solid #ffffff18;border-radius:8px;padding:10px;text-align:left}
+#lob-chat{max-height:84px;overflow:auto;font-size:11px;display:flex;flex-direction:column;gap:4px;margin-bottom:8px;min-height:24px}
+.lob-emotes{display:flex;gap:6px;flex-wrap:wrap}
+.em-btn{padding:5px 8px;font-size:10px;background:#182634;color:#d6e4f0;border:1px solid #ffffff1c}
+.lob-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.ready-pill{background:#35ff9a22;color:#35ff9a;border:1px solid #35ff9a66;border-radius:3px;padding:2px 6px;font-size:9px;letter-spacing:.05em}
 @media(max-width:900px){.spd-wrap{height:48px}#spd{font-size:32px}#finishes{margin-left:0}}

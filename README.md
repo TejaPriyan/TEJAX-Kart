@@ -6,6 +6,7 @@ Free 3D arcade racing for desktop browsers and an installable mobile web app, wi
 
 - Public website: https://tejax-kart.vercel.app/
 - GitHub Pages mirror: https://tejapriyan.github.io/TEJAX-Kart/
+- Live Global Multiplayer & Leaderboard Edge Server: https://tejax-kart-mp.teja1616150.workers.dev (Cloudflare Workers + SQLite Durable Objects)
 - Desktop: open the game in the browser. There is no Windows download or installer.
 - Mobile: use Install / Add to Home Screen. Open Settings, enable tilt, allow motion access and calibrate. Optional auto-acceleration, sensitivity, inversion and touch pedals are included. Wait for Offline ready before disconnecting.
 - This is a web app, not an APK/IPA or app-store release. Motion support varies by device; touch controls remain available. A physical Android/iPhone acceptance check is still recommended before advertising device-specific compatibility.
