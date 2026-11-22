@@ -40,7 +40,7 @@ function makeCode(){
 const N=window.NET={
  PUBLIC_HTTP,PUBLIC_WS,
  me:0,host:0,code:'',players:[],ping:0,on:null,shot:0,
- track:0,mode:1,isPublic:false,fillBots:true,
+ track:0,mode:1,laps:3,isPublic:false,fillBots:false,
  makeCode,
  apiBase(custom){try{return normalizeHttp(custom)}catch{return PUBLIC_HTTP}},
  async api(path,opts={},custom){

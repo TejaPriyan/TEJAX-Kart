@@ -11,8 +11,13 @@ const TRACK_PTS = [
   // 3: Obsidian Caldera
   [[0,2,0],[150,5,-45],[290,13,20],[340,21,150],[250,15,280],[110,8,240],[-10,16,330],[-160,22,300],[-280,12,190],[-250,5,50],[-140,3,-65]],
   // 4: Orbital Skyway
-  [[0,10,0],[180,16,-30],[330,26,55],[360,22,210],[240,12,330],[70,18,295],[-80,28,365],[-245,24,285],[-310,14,140],[-210,9,10],[-120,11,-85]]
+  [[0,10,0],[180,16,-30],[330,26,55],[360,22,210],[240,12,330],[70,18,295],[-80,28,365],[-245,24,285],[-310,14,140],[-210,9,10],[-120,11,-85]],
+  // 5: Sunset Marina
+  [[0,2,0],[170,4,-35],[315,12,35],[350,16,185],[255,8,305],[105,3,270],[-25,4,340],[-195,9,295],[-285,15,175],[-245,7,40],[-125,2.5,-60]]
 ];
+const FINISHES = ['gloss', 'matte', 'chrome', 'pearl'];
+const LIVERIES = ['solid', 'stripes', 'hex', 'bolt', 'carbon'];
+const RIMS = ['alloy', 'turbo', 'neon', 'beadlock'];
 const ARM = [0.8, 1.6, 0.7, 1, 0.75, 1.25];
 const ABILITY = [0, 1, 2, 3, 4, 5];
 const DURATION = [2.5, 4, 4.5, 5, 3.5, 4.5];
@@ -51,7 +56,7 @@ function validState(m) {
     Math.abs(m.x) < 1200 && Math.abs(m.z) < 1200 &&
     Math.abs(m.vf) <= 200 && Math.abs(m.vl) <= 200 &&
     Number.isInteger(m.idx) && m.idx >= 0 && m.idx < 500 &&
-    Number.isInteger(m.lap) && m.lap >= 0 && m.lap <= 3 &&
+    Number.isInteger(m.lap) && m.lap >= 0 && m.lap <= 5 &&
     (m.st === undefined || (Number.isFinite(m.st) && Math.abs(m.st) <= 1.05));
 }
 
@@ -327,8 +332,9 @@ export class RaceRoom extends DurableObject {
     this.code = '';
     this.track = 0;
     this.mode = 1; // 0=Race, 1=Combat, 2=Elimination
+    this.laps = 3;
     this.isPublic = false;
-    this.fillBots = true;
+    this.fillBots = false;
     this.live = false;
     this.seed = 0;
     this.started = 0;
@@ -349,20 +355,24 @@ export class RaceRoom extends DurableObject {
         this.code = att.code || this.code;
         this.track = att.track ?? this.track;
         this.mode = att.mode ?? this.mode;
+        this.laps = [1, 3, 5].includes(att.laps) ? att.laps : this.laps;
         this.isPublic = !!att.isPublic;
-        this.fillBots = att.fillBots !== false;
-        const p = this.makePlayer(att.id, att.name, att.car, att.paint, !!att.ready);
+        this.fillBots = !!att.fillBots;
+        const p = this.makePlayer(att.id, att.name, att.car, att.paint, !!att.ready, att.finish, att.livery, att.rim);
         this.players.set(ws, p);
         this.order.push(ws);
       }
     }
   }
 
-  makePlayer(id, name, car, paint, ready = false) {
+  makePlayer(id, name, car, paint, ready = false, finish = 'gloss', livery = 'stripes', rim = 'alloy') {
     return {
       id, name, car, paint, ready,
+      finishStyle: FINISHES.includes(finish) ? finish : 'gloss',
+      livery: LIVERIES.includes(livery) ? livery : 'stripes',
+      rim: RIMS.includes(rim) ? rim : 'alloy',
       rateAt: Date.now(), rate: 0,
-      hp: 100, deadUntil: 0, shieldUntil: 0, invUntil: 0,
+      hp: 100, kills: 0, deadUntil: 0, shieldUntil: 0, invUntil: 0,
       abilityUntil: 0, abilityReady: 0, gunReady: 0, missileReady: 0, empReady: 0,
       rapidUntil: 0, plasmaUntil: 0, magnetUntil: 0,
       lap: 0, checkpoint: 0, finish: 0, eliminated: false,
@@ -405,17 +415,17 @@ export class RaceRoom extends DurableObject {
     const hostId = this.players.get(this.order[0])?.id || 0;
     const list = this.order.map(ws => {
       const p = this.players.get(ws);
-      return { id: p.id, name: p.name, car: p.car, paint: p.paint, ready: !!p.ready };
+      return { id: p.id, name: p.name, car: p.car, paint: p.paint, finish: p.finishStyle || 'gloss', livery: p.livery || 'stripes', rim: p.rim || 'alloy', ready: !!p.ready };
     });
     for (const ws of this.order) {
       const p = this.players.get(ws);
       ws.serializeAttachment({
-        id: p.id, name: p.name, car: p.car, paint: p.paint, ready: !!p.ready,
-        code: this.code, track: this.track, mode: this.mode, isPublic: this.isPublic, fillBots: this.fillBots
+        id: p.id, name: p.name, car: p.car, paint: p.paint, finish: p.finishStyle, livery: p.livery, rim: p.rim, ready: !!p.ready,
+        code: this.code, track: this.track, mode: this.mode, laps: this.laps, isPublic: this.isPublic, fillBots: this.fillBots
       });
       this.send(ws, {
         t: 'room', code: this.code, you: p.id, host: hostId,
-        track: this.track, mode: this.mode, isPublic: this.isPublic, fillBots: this.fillBots,
+        track: this.track, mode: this.mode, laps: this.laps, isPublic: this.isPublic, fillBots: this.fillBots,
         players: list
       });
     }
@@ -437,7 +447,7 @@ export class RaceRoom extends DurableObject {
     return new Response(null, { status: 101, webSocket: client });
   }
 
-  broadcastHealth(p, killerId = null) {
+  broadcastHealth(p, killer = null) {
     const now = Date.now();
     const payload = {
       t: 'health', id: p.id, hp: p.hp,
@@ -446,7 +456,7 @@ export class RaceRoom extends DurableObject {
       sh: Math.max(0, (p.shieldUntil - now) / 1000),
       inv: Math.max(0, (p.invUntil - now) / 1000)
     };
-    if (killerId) payload.killer = killerId;
+    if (killer) { payload.killer = killer.id; payload.killerName = killer.name; payload.victimName = p.name; }
     this.broadcast(payload);
   }
 
@@ -455,6 +465,7 @@ export class RaceRoom extends DurableObject {
     if (this.mode === 0 || p.eliminated || p.deadUntil > now || p.invUntil > now || p.shieldUntil > now) return;
     p.hp = Math.max(0, p.hp - amount / ARM[p.car]);
     if (p.hp <= 0) {
+      if (by && by !== p) by.kills = (by.kills || 0) + 1;
       if (this.mode === 2) {
         p.eliminated = true;
         p.deadUntil = now + 9e9;
@@ -462,14 +473,14 @@ export class RaceRoom extends DurableObject {
         p.deadUntil = now + 3500;
         p.invUntil = p.deadUntil + 2500;
       }
-      this.broadcastHealth(p, by?.id);
+      this.broadcastHealth(p, by || null);
       if (this.mode === 2) {
         const alive = this.order.map(w => this.players.get(w)).filter(x => !x.eliminated);
         if (alive.length <= 1) {
           this.live = false;
           this.stopTick();
           if (alive.length === 1) {
-            this.broadcast({ t: 'progress', id: alive[0].id, lap: 3, place: 1, elimWin: true });
+            this.broadcast({ t: 'progress', id: alive[0].id, lap: this.laps, place: 1, elimWin: true, timeMs: Math.max(0, now - this.started), kills: alive[0].kills || 0 });
           }
           this.syncDirectory();
         }
@@ -508,7 +519,7 @@ export class RaceRoom extends DurableObject {
       const p = this.players.get(ws);
       const idx = 3 + i * 4, pt = TRACKS[this.track][idx];
       Object.assign(p, {
-        hp: 100, deadUntil: 0, shieldUntil: 0, invUntil: 0,
+        hp: 100, kills: 0, deadUntil: 0, shieldUntil: 0, invUntil: 0,
         abilityUntil: 0, abilityReady: 0, gunReady: 0, missileReady: 0, empReady: 0,
         rapidUntil: 0, plasmaUntil: 0, magnetUntil: 0,
         lap: 0, checkpoint: 0, finish: 0, eliminated: false,
@@ -523,6 +534,7 @@ export class RaceRoom extends DurableObject {
       order: this.order.map(ws => this.players.get(ws).id),
       track: this.track,
       mode: this.mode,
+      laps: this.laps,
       seed: this.seed,
       botCount
     });
@@ -654,18 +666,22 @@ export class RaceRoom extends DurableObject {
         if (this.order.length === 0) {
           if (Number.isInteger(m.track) && m.track >= 0 && m.track < TRACKS.length) this.track = m.track;
           if ([0, 1, 2].includes(m.mode)) this.mode = m.mode;
+          if ([1, 3, 5].includes(m.laps)) this.laps = m.laps;
           this.isPublic = !!m.isPublic;
-          this.fillBots = m.fillBots !== false;
+          this.fillBots = !!m.fillBots;
         }
         const id = ++this.uid;
         const paint = /^#[a-f0-9]{6}$/i.test(m.paint) ? m.paint : '#b6ff3b';
-        p = this.makePlayer(id, cleanName(m.name), m.car, paint, false);
+        p = this.makePlayer(id, cleanName(m.name), m.car, paint, false, m.finish, m.livery, m.rim);
         this.players.set(ws, p);
         this.order.push(ws);
       } else {
         p.name = cleanName(m.name);
         p.car = m.car;
         p.paint = /^#[a-f0-9]{6}$/i.test(m.paint) ? m.paint : p.paint;
+        if (FINISHES.includes(m.finish)) p.finishStyle = m.finish;
+        if (LIVERIES.includes(m.livery)) p.livery = m.livery;
+        if (RIMS.includes(m.rim)) p.rim = m.rim;
       }
       this.broadcastRoomInfo();
       return;
@@ -679,12 +695,32 @@ export class RaceRoom extends DurableObject {
       this.broadcastRoomInfo();
       return;
     }
+    if (m.t === 'profile' && !this.live) {
+      if (typeof m.name === 'string') p.name = cleanName(m.name);
+      if (validCar(m.car)) p.car = m.car;
+      if (/^#[a-f0-9]{6}$/i.test(m.paint)) p.paint = m.paint;
+      if (FINISHES.includes(m.finish)) p.finishStyle = m.finish;
+      if (LIVERIES.includes(m.livery)) p.livery = m.livery;
+      if (RIMS.includes(m.rim)) p.rim = m.rim;
+      this.broadcastRoomInfo();
+      return;
+    }
     if (m.t === 'config' && isHost && !this.live) {
       if (Number.isInteger(m.track) && m.track >= 0 && m.track < TRACKS.length) this.track = m.track;
       if ([0, 1, 2].includes(m.mode)) this.mode = m.mode;
+      if ([1, 3, 5].includes(m.laps)) this.laps = m.laps;
       if (typeof m.fillBots === 'boolean') this.fillBots = m.fillBots;
       if (typeof m.isPublic === 'boolean') this.isPublic = m.isPublic;
       this.broadcastRoomInfo();
+      return;
+    }
+    if (m.t === 'kick' && isHost && !this.live) {
+      const targetWs = this.order.find(w => w !== ws && this.players.get(w)?.id === m.id);
+      if (targetWs) {
+        this.send(targetWs, { t: 'err', m: 'Removed from lobby by host.' });
+        this.handleDisconnect(targetWs);
+        try { targetWs.close(1008, 'Kicked'); } catch {}
+      }
       return;
     }
     if (m.t === 'chat') {
@@ -739,8 +775,8 @@ export class RaceRoom extends DurableObject {
         if (delta < 40 && p.checkpoint < 3 && m.idx >= 120 * (p.checkpoint + 1) && m.idx < 120 * (p.checkpoint + 1) + 50) p.checkpoint++;
         if (prev.idx > 450 && m.idx < 50 && p.checkpoint === 3) {
           p.lap++; p.checkpoint = 0;
-          if (p.lap === 3) { this.finish.push(p.id); p.finish = this.finish.length; }
-          this.broadcast({ t: 'progress', id: p.id, lap: p.lap, place: p.finish });
+          if (p.lap >= this.laps) { this.finish.push(p.id); p.finish = this.finish.length; }
+          this.broadcast({ t: 'progress', id: p.id, lap: p.lap, place: p.finish, timeMs: Math.max(0, now - this.started), kills: p.kills || 0 });
           if (this.order.every(w => this.players.get(w).finish)) {
             this.live = false; this.stopTick(); this.syncDirectory();
           }
@@ -826,6 +862,7 @@ export class RaceRoom extends DurableObject {
   handleDisconnect(ws) {
     const p = this.players.get(ws);
     if (!p) return;
+    const wasHost = this.order[0] === ws;
     this.players.delete(ws);
     this.order = this.order.filter(w => w !== ws);
     if (!this.order.length) {
@@ -834,7 +871,11 @@ export class RaceRoom extends DurableObject {
       this.syncDirectory();
       return;
     }
-    this.broadcast({ t: 'gone', id: p.id });
+    this.broadcast({ t: 'gone', id: p.id, name: p.name });
+    if (wasHost) {
+      const nh = this.players.get(this.order[0]);
+      if (nh) this.broadcast({ t: 'host', id: nh.id, name: nh.name });
+    }
     this.broadcastRoomInfo();
   }
 
@@ -856,7 +897,7 @@ export default {
     }
 
     if (url.pathname === '/api/health' || url.pathname === '/') {
-      return Response.json({ ok: true, service: 'tejax-kart-mp', version: '6.4.0' }, { headers: cors });
+      return Response.json({ ok: true, service: 'tejax-kart-mp', version: '6.5.0' }, { headers: cors });
     }
 
     if (origin && !isAllowedOrigin(origin, env)) {

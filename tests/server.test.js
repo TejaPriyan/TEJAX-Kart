@@ -46,11 +46,15 @@ test('real WebSocket room lifecycle, security, and authority checks',async t=>{
  a.send({t:'rematch'});await a.next('reset');await a.next('room');await b.next('reset');await b.next('room');assert.equal(r.live,false);
  // Phase 3 lobby upgrades: ready, config, quick-chat, public rooms & quickmatch REST APIs
  b.send({t:'ready'});const rReady=await a.next('room');await b.next('room');assert.equal(rReady.players[1].ready,true);
- a.send({t:'config',track:4,mode:2,fillBots:true,isPublic:true});const rCfg=await b.next('room');await a.next('room');assert.equal(rCfg.track,4);assert.equal(rCfg.mode,2);assert.equal(rCfg.fillBots,true);
+ a.send({t:'config',track:5,mode:2,laps:5,fillBots:false,isPublic:true});const rCfg=await b.next('room');await a.next('room');assert.equal(rCfg.track,5);assert.equal(rCfg.mode,2);assert.equal(rCfg.laps,5);assert.equal(rCfg.fillBots,false);
+ // Phase 5: in-lobby profile update (real friend name, livery, rim), Friends-Only (0 bots), and host migration
+ b.send({t:'profile',name:'Alex',car:5,livery:'bolt',rim:'beadlock'});const rProf=await a.next('room');await b.next('room');assert.equal(rProf.players[1].name,'Alex');assert.equal(rProf.players[1].livery,'bolt');assert.equal(rProf.players[1].rim,'beadlock');
  a.send({t:'chat',i:0});const chatMsg=await b.next('chat');assert.equal(chatMsg.text,'🏁 Ready!');
  const pubRooms=await fetch('http://127.0.0.1:'+port+'/api/rooms').then(x=>x.json());assert.ok(pubRooms.rooms.some(x=>x.code===room.code));
  const qm=await fetch('http://127.0.0.1:'+port+'/api/quickmatch',{method:'POST'}).then(x=>x.json());assert.equal(qm.action,'join');assert.equal(qm.code,room.code);
- a.send({t:'start'});const go2=await a.next('go');assert.equal(r.live,true);assert.equal(host.lap,0);assert.equal(go2.botCount,4);
+ a.send({t:'start'});const go2=await a.next('go');assert.equal(r.live,true);assert.equal(host.lap,0);assert.equal(go2.botCount,0,'Friends-only room must launch with 0 AI bots');assert.equal(go2.laps,5);
+ // Host leaves -> guest becomes new host automatically
+ a.ws.close();const migrated=await b.next('host');assert.equal(migrated.name,'Alex');
  const response=await fetch('http://127.0.0.1:'+port+'/game.html');assert.equal(response.status,200);assert.match(await response.text(),/START YOUR ENGINE/);assert.equal((await fetch('http://127.0.0.1:'+port+'/../package.json')).status,404);
  const sitemap=await fetch('http://127.0.0.1:'+port+'/sitemap.xml');assert.match(sitemap.headers.get('content-type'),/xml/);assert.match(await sitemap.text(),/<urlset/);assert.equal((await fetch('http://127.0.0.1:'+port+'/downloads/tejax-kart-offline.zip')).status,404);
 });

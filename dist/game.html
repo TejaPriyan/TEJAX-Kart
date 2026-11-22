@@ -41,16 +41,17 @@
  <div id="caminfo"></div><span id="fps"></span>
 </div>
 <div id="menu" role="main" aria-label="Game garage">
- <header class="garage-header"><a class="wordmark" href="index.html">T<span>↗</span> TEJAX<span>KART</span></a><span class="edition">APEX PROTOCOL / 06</span><button id="open-settings" class="icon-btn" aria-label="Open settings">⚙</button></header>
+ <header class="garage-header"><a class="wordmark" href="index.html">T<span>↗</span> TEJAX<span>KART</span></a><span class="edition">APEX PROTOCOL / 6.5</span><button type="button" id="garage-install" class="secondary install-pill" data-install>📲 INSTALL APP</button><button id="open-settings" class="icon-btn" aria-label="Open settings">⚙</button></header>
  <main class="garage-main">
  <div class="eyebrow">THE GARAGE <span>01 — CONFIGURE YOUR RUN</span></div>
  <h1>BUILT TO<br><em>BREAK AWAY.</em></h1>
  <div class="setup-section"><div class="section-title"><span>01 / CIRCUIT</span><small id="track-info">NEON STREETS · TECHNICAL</small></div><div id="tracks"></div></div>
  <div class="setup-section"><div class="section-title"><span>02 / DISCIPLINE</span><button class="text-btn" id="help-open">How to play ↗</button></div><div id="modes"></div><p id="mode-info">Three laps. Weapons live. Make every corner count.</p></div>
- <div class="setup-section"><div class="section-title"><span>03 / YOUR MACHINE</span><small>6 SPECIALISTS</small></div><div id="cars"></div></div>
- <div class="paint-row"><span class="eyebrow">LIVERY</span><div id="paints"></div><div id="finishes" aria-label="Paint finish"></div></div>
+ <div class="setup-section"><div class="section-title"><span>03 / YOUR MACHINE</span><small>6 UNIQUE CHASSIS</small></div><div id="cars"></div></div>
+ <div class="paint-row"><span class="eyebrow">DRIVER</span><input id="garage-name" class="garage-name" maxlength="16" placeholder="Your Name" aria-label="Driver name"><span class="eyebrow">PAINT</span><div id="paints"></div><div id="finishes" aria-label="Paint finish"></div></div>
+ <div class="custom-row"><span class="eyebrow">LIVERY</span><div id="liveries" aria-label="Livery pattern"></div><span class="eyebrow">RIMS</span><div id="rims" aria-label="Wheel rims"></div></div>
  <div class="launch-row"><button id="go">START YOUR ENGINE <span>↗</span></button><button id="online-open" class="secondary">ONLINE MULTIPLAYER 🌐</button></div>
- <div class="garage-foot"><span id="career">YOUR CAREER STARTS HERE</span><span>WASD / ARROWS · TOUCH READY</span><span id="offline-status" role="status">CONNECT ONCE TO SAVE SOLO PLAY OFFLINE</span></div>
+ <div class="garage-foot"><span id="career">YOUR CAREER STARTS HERE</span><span>WASD / ARROWS · GAMEPAD · TOUCH</span><span id="offline-status" role="status">CONNECT ONCE TO SAVE SOLO PLAY OFFLINE</span></div>
  </main>
  <aside class="vehicle-caption"><span class="eyebrow">YOUR SELECTED MACHINE</span><h2 id="vehicle-name">SCOUT</h2><span id="vehicle-desc">Lightweight interceptor</span><div class="specs"><span><b id="v-speed">248</b> KM/H BASE</span><span><b id="v-armor">80</b> ARMOR INDEX</span></div><small>DRAG TO ORBIT · LIVE 3D SHOWROOM</small></aside>
 </div>
@@ -63,40 +64,50 @@
  <label class="check">Auto-fire at detected rivals<input type="checkbox" id="auto-fire" checked></label><p class="muted">Blasters automatically aim and fire at visible rivals ahead. Turn this off for manual F / touch fire. Missiles still use E. Weapons are disabled in Race and Time trial.</p><fieldset class="tilt-settings"><legend>Mobile tilt steering</legend><p>Hold your phone comfortably, then enable motion. Tilt left to steer left and right to steer right. Use landscape for more space.</p><div class="tilt-actions"><button type="button" id="enable-tilt">ENABLE TILT</button><button type="button" id="calibrate-tilt" class="secondary">CALIBRATE</button><button type="button" id="disable-tilt" class="secondary">USE TOUCH</button></div><p id="tilt-status" role="status" aria-live="polite">Touch steering is available. Motion data stays on your device.</p><label>Tilt sensitivity<input type="range" id="tilt-sensitivity" min="12" max="45" value="25"></label><label class="check">Auto-accelerate with tilt<input type="checkbox" id="tilt-auto" checked></label><label class="check">Invert tilt direction<input type="checkbox" id="tilt-invert"></label></fieldset><div class="key-settings"><label>Accelerate<input id="key-gas" readonly aria-label="Remap accelerate" value="KeyW"></label><label>Brake<input id="key-brake" readonly value="KeyS"></label><label>Left<input id="key-left" readonly value="KeyA"></label><label>Right<input id="key-right" readonly value="KeyD"></label></div><p class="muted">Click a key field, then press a letter. Arrow keys always work. Settings save on this device.</p><button type="button" id="save-settings">SAVE SETTINGS ↗</button>
 </dialog>
 <dialog id="help"><form method="dialog"><div class="dialog-head"><h2>Find your racing line.</h2><button class="icon-btn" aria-label="Close instructions">×</button></div></form><div class="controls-grid"><span>Accelerate / steer</span><kbd>WASD / ↑↓←→</kbd><span>Drift (hold &amp; release for Mini-Turbo!)</span><kbd>SPACE</kbd><span>Boost</span><kbd>SHIFT</kbd><span>Blaster / missile</span><kbd>F / E</kbd><span>Mine / EMP / oil</span><kbd>Q / T / G</kbd><span>Signature ability</span><kbd>X / Z</kbd><span>Camera (4 angles) / Look back</span><kbd>C / V</kbd><span>Pause / Restart solo</span><kbd>ESC / R</kbd><span>Controller / Gamepad</span><kbd>STICK + RT/LT/LB/RB</kbd></div><p>Hold drift through corners until sparks shift Blue → Orange → Purple, then release for a 3-tier Mini-Turbo burst. Hit glowing Boost Pads for instant nitro surges and launch off 3D Jump Ramps for airtime bonuses. Standard USB/Bluetooth controllers are supported automatically.</p><p class="muted">Eight labeled pickups: Repair, Nitro, Shield, Missile reload, Rapid fire (10s), Plasma rounds (8s), Pickup magnet (12s), and Ability recharge. Pure racing modes use only repair, nitro and shields. Auto-fire detects visible rivals ahead; turn it off in Settings for manual fire. Stay on the track and cross checkpoints in order.</p></dialog>
-<dialog id="online"><form method="dialog"><div class="dialog-head"><div><span class="eyebrow">GLOBAL EDGE · ZERO SETUP</span><h2>Online Multiplayer</h2></div><button class="icon-btn" aria-label="Close multiplayer">×</button></div></form>
+<dialog id="online"><form method="dialog"><div class="dialog-head"><div><span class="eyebrow">GLOBAL EDGE · FRIENDS OR PUBLIC</span><h2>Online Multiplayer</h2></div><button class="icon-btn" aria-label="Close multiplayer">×</button></div></form>
  <div class="mp-tabs"><button type="button" class="mp-tab on" data-mptab="play">LIVE ROOMS</button><button type="button" class="mp-tab" data-mptab="lb">GLOBAL LEADERBOARD 🏆</button></div>
  <div id="mp-tab-play">
-  <label>Driver callsign<input id="driver-name" maxlength="16" placeholder="Your callsign" value="Racer"></label>
+  <label>Your display name (seen by friends)<input id="driver-name" maxlength="16" placeholder="Enter your name" value="Racer"></label>
   <button type="button" id="mp-quick" class="mp-quick-btn">⚡ QUICK MATCH — JOIN OR CREATE PUBLIC LOBBY ↗</button>
   <div class="mp-split">
    <label>Room code<input id="room-code" maxlength="12" placeholder="TK-ABC123"></label>
-   <label class="check"><input type="checkbox" id="mp-public" checked> List publicly</label>
+   <label class="check"><input type="checkbox" id="mp-public"> List publicly</label>
   </div>
-  <div id="modes2"><button type="button" id="mpc">CREATE ROOM</button><button type="button" id="mpj" class="secondary">JOIN CODE</button></div>
+  <label class="check"><input type="checkbox" id="mp-bots"> Fill empty slots with AI bots (leave OFF for Friends Only)</label>
+  <div id="modes2"><button type="button" id="mpc">CREATE FRIENDS ROOM</button><button type="button" id="mpj" class="secondary">JOIN ROOM CODE</button></div>
   <div class="mp-sec-head"><span class="eyebrow">OPEN PUBLIC LOBBIES</span><button type="button" id="refresh-rooms" class="text-btn">Refresh ↻</button></div>
   <div id="room-browser" class="mp-list"><p class="muted">Loading live rooms…</p></div>
   <details class="mp-adv"><summary>Advanced: LAN / Custom WebSocket Server</summary><label>Server URL<input id="server-url" placeholder="Auto: Global Cloudflare Server (or ws://LAN-IP:3000)"></label><a href="how-to-play.html#multiplayer">Self-hosted LAN guide ↗</a></details>
   <p id="net-status" role="status">Connected to Global Matchmaking · Solo play always works offline.</p>
  </div>
  <div id="mp-tab-lb" hidden>
-  <div class="mp-lb-tracks"><button type="button" class="lb-trk on" data-lbt="0">Neo City</button><button type="button" class="lb-trk" data-lbt="1">Crimson Canyon</button><button type="button" class="lb-trk" data-lbt="2">Glacier Ridge</button><button type="button" class="lb-trk" data-lbt="3">Obsidian Caldera</button><button type="button" class="lb-trk" data-lbt="4">Orbital Skyway</button></div>
+  <div class="mp-lb-tracks"><button type="button" class="lb-trk on" data-lbt="0">Neo City</button><button type="button" class="lb-trk" data-lbt="1">Canyon</button><button type="button" class="lb-trk" data-lbt="2">Glacier</button><button type="button" class="lb-trk" data-lbt="3">Caldera</button><button type="button" class="lb-trk" data-lbt="4">Orbital</button><button type="button" class="lb-trk" data-lbt="5">Marina</button></div>
   <div id="global-lb" class="mp-list"><p class="muted">Loading global Time Trial records…</p></div>
   <p class="muted">Finish any 3-lap Time Trial online to post your record and holographic ghost automatically.</p>
  </div>
 </dialog>
+<dialog id="install-help"><form method="dialog"><div class="dialog-head"><div><span class="eyebrow">PLAY LIKE A NATIVE APP</span><h2>Install TEJAX KART</h2></div><button class="icon-btn" aria-label="Close install guide">×</button></div></form><p id="install-platform-tip">Install TEJAX KART directly from your browser for full-screen standalone play and offline solo racing.</p><p class="muted"><strong>Desktop (Chrome / Edge):</strong> Click the Install icon in the address bar or menu → Install TEJAX KART.<br><strong>Android (Chrome):</strong> Tap ⋮ Menu → Install app.<br><strong>iPhone / iPad (Safari):</strong> Tap Share (↑) → Add to Home Screen.</p></dialog>
 <div id="lob" hidden>
- <div class="lob-head"><h2 id="lc"></h2><button type="button" id="copy-invite" class="secondary">COPY INVITE LINK 🔗</button></div>
+ <div class="lob-head"><h2 id="lc"></h2><span id="lob-badge" class="lob-badge">👥 FRIENDS ONLY · NO BOTS</span><button type="button" id="copy-invite" class="secondary">COPY INVITE LINK 🔗</button></div>
  <p id="lobby-note">Share this code or invite link with friends worldwide.</p>
  <div id="lob-cfg" class="lob-cfg">
-  <label>Circuit<select id="lob-track"><option value="0">🏙️ Neo City</option><option value="1">🏜️ Crimson Canyon</option><option value="2">🏔️ Glacier Ridge</option><option value="3">🌋 Obsidian Caldera</option><option value="4">🌌 Orbital Skyway</option></select></label>
+  <label>Circuit<select id="lob-track"><option value="0">🏙️ Neo City</option><option value="1">🏜️ Crimson Canyon</option><option value="2">🏔️ Glacier Ridge</option><option value="3">🌋 Obsidian Caldera</option><option value="4">🌌 Orbital Skyway</option><option value="5">🌴 Sunset Marina</option></select></label>
   <label>Mode<select id="lob-mode"><option value="0">Race (No Weapons)</option><option value="1" selected>Combat Race</option><option value="2">Elimination</option></select></label>
-  <label class="check"><input type="checkbox" id="lob-bots" checked> Fill empty slots with AI bots</label>
+  <label>Laps<select id="lob-laps"><option value="1">1 Lap</option><option value="3" selected>3 Laps</option><option value="5">5 Laps</option></select></label>
+  <label class="check"><input type="checkbox" id="lob-bots"> Fill with AI bots</label>
+  <label class="check"><input type="checkbox" id="lob-public"> Public</label>
+ </div>
+ <div id="lob-loadout" class="lob-cfg lob-loadout">
+  <label>Name<input id="lob-name" maxlength="16" placeholder="Your name"></label>
+  <label>Machine<select id="lob-car"><option value="0">SCOUT</option><option value="1">TITAN</option><option value="2">ASSASSIN</option><option value="3">VECTOR</option><option value="4">APEX</option><option value="5">RALLY</option></select></label>
+  <label>Livery<select id="lob-livery"><option value="solid">Solid</option><option value="stripes">Stripes</option><option value="hex">Hex</option><option value="bolt">Bolt</option><option value="carbon">Carbon</option></select></label>
+  <label>Rims<select id="lob-rim"><option value="alloy">Alloy</option><option value="turbo">Turbo</option><option value="neon">Neon</option><option value="beadlock">Beadlock</option></select></label>
  </div>
  <div id="lp"></div>
  <div class="lob-chat-box"><div id="lob-chat"></div><div class="lob-emotes"><button type="button" class="em-btn" data-em="0">🏁 Ready!</button><button type="button" class="em-btn" data-em="1">🔥 Let's race!</button><button type="button" class="em-btn" data-em="2">🚀 Watch out!</button><button type="button" class="em-btn" data-em="4">👏 GG!</button></div></div>
  <div class="lob-actions"><button type="button" id="lob-ready" class="secondary">READY ✓</button><button type="button" id="ls">START MATCH ↗</button><button type="button" id="leave-room" class="secondary">Leave room</button></div>
 </div>
-<div id="end" hidden><h2 id="et"></h2><p id="es"></p><button id="again">RACE AGAIN ↗</button><button id="results-menu" class="secondary">Back to garage</button></div>
+<div id="end" hidden><h2 id="et"></h2><p id="es"></p><div id="podium"></div><button id="again">RACE AGAIN ↗</button><button id="results-menu" class="secondary">Back to garage</button></div>
 <div id="pause" hidden><div id="pausebox"><h2 id="pause-label">PAUSED</h2><button id="resume">Resume</button><button id="p-mute">Audio: ON 🔊</button><button id="pit-tilt" class="secondary">Tilt steering settings</button><button id="quitm">Quit to Menu</button></div></div>
 <div id="touch" hidden>
  <div id="pedals"><button class="pedal" id="tbrake" aria-label="Brake or reverse">BRAKE</button><button class="pedal" id="tgas" aria-label="Accelerate">GAS</button></div><button id="quick-calibrate" aria-label="Recalibrate tilt steering">CENTER TILT</button><div id="tjoy"><div id="tjknob"></div></div>

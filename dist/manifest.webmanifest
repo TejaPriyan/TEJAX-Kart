@@ -2,10 +2,18 @@
   "id": "./",
   "name": "TEJAX KART — Apex Protocol",
   "short_name": "TEJAX KART",
-  "description": "Six machines. Three circuits. Offline combat racing.",
-  "start_url": "./game.html",
+  "description": "Six unique machines, six banked circuits, global multiplayer with friends & offline combat racing.",
+  "start_url": "./game.html?source=pwa",
   "scope": "./",
   "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
   "orientation": "any",
   "background_color": "#0b1118",
   "theme_color": "#0b1118",
@@ -27,13 +35,29 @@
       "purpose": "any maskable"
     }
   ],
+  "screenshots": [
+    {
+      "src": "assets/social-card.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "TEJAX KART 3D Garage & Circuits"
+    }
+  ],
   "shortcuts": [
     {
-      "name": "The garage",
+      "name": "Play Now",
+      "short_name": "Race",
       "url": "./game.html"
     },
     {
-      "name": "Mobile guide",
+      "name": "Online Multiplayer",
+      "short_name": "Online",
+      "url": "./game.html?open=online"
+    },
+    {
+      "name": "Mobile & Tilt Guide",
+      "short_name": "Mobile",
       "url": "./mobile.html"
     }
   ]

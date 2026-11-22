@@ -32,7 +32,8 @@ function createRoadTextures(theme){
   canyon:{base:'#2c282b',groove:'#211e20',grain1:'#453836',grain2:'#1a1618',kerbA:'#ff5a45',kerbB:'#ffe0a3',line:'#fff2db',roughBase:225,roughGroove:195},
   glacier:{base:'#1b3148',groove:'#14263a',grain1:'#386182',grain2:'#0e1c2c',kerbA:'#46f0ff',kerbB:'#dff8ff',line:'#8ef6ff',roughBase:105,roughGroove:65},
   volcano:{base:'#1b1418',groove:'#120d10',grain1:'#3a221c',grain2:'#0e090b',kerbA:'#ff551a',kerbB:'#2a1614',line:'#ffaa33',roughBase:175,roughGroove:120},
-  orbital:{base:'#171d36',groove:'#11162a',grain1:'#2e3866',grain2:'#0d1020',kerbA:'#b66bff',kerbB:'#b6ff3b',line:'#ffe680',roughBase:115,roughGroove:70}
+  orbital:{base:'#171d36',groove:'#11162a',grain1:'#2e3866',grain2:'#0d1020',kerbA:'#b66bff',kerbB:'#b6ff3b',line:'#ffe680',roughBase:115,roughGroove:70},
+  marina:{base:'#202838',groove:'#171d29',grain1:'#34425a',grain2:'#131822',kerbA:'#1ef2ff',kerbB:'#ff8a3d',line:'#ffe89c',roughBase:135,roughGroove:88}
  };
  const p=palettes[theme]||palettes.city;
 
@@ -137,6 +138,20 @@ function createGroundTexture(theme){
   for(let i=0;i<180;i++){x.fillStyle=rnd()>.5?'#1e2e66':'#382678';x.globalAlpha=.24;x.beginPath();x.arc(rnd()*256,rnd()*256,12+rnd()*28,0,PI*2);x.fill()}
   x.strokeStyle='#b66bff28';x.lineWidth=1;x.globalAlpha=1;
   for(let i=0;i<=256;i+=64){x.beginPath();x.moveTo(i,0);x.lineTo(i,256);x.stroke();x.beginPath();x.moveTo(0,i);x.lineTo(256,i);x.stroke()}
+ }else if(theme==='marina'){
+  // Twilight coastal ocean ripples & sunset shimmer
+  x.fillStyle='#0c3048';x.fillRect(0,0,256,256);
+  let s=9127;const rnd=()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296};
+  for(let y=0;y<256;y+=8){
+   x.fillStyle=y%16===0?'#154c6e':'#092538';
+   x.globalAlpha=.45;x.fillRect(0,y,256,4);
+  }
+  for(let i=0;i<420;i++){
+   x.fillStyle=rnd()>.72?'#ffad75':'#2be0f2';
+   x.globalAlpha=.22+rnd()*.22;
+   x.fillRect(rnd()*256,rnd()*256,10+rnd()*26,2);
+  }
+  x.globalAlpha=1;
  }else{
   x.fillStyle='#132a44';x.fillRect(0,0,256,256);
   let s=8821;const rnd=()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296};
@@ -227,7 +242,8 @@ function createThemeEnvMap(theme){
   canyon:[['#2e5480',0],['#e89b72',.44],['#ffe5b4',.5],['#7c422c',.56],['#29120b',1]],
   glacier:[['#041428',0],['#18667a',.4],['#72f6ff',.5],['#1c4160',.58],['#071422',1]],
   volcano:[['#120508',0],['#4d1412',.42],['#ff6a26',.52],['#38120c',.62],['#0e0506',1]],
-  orbital:[['#04071c',0],['#261868',.42],['#b66bff',.5],['#142454',.6],['#040712',1]]
+  orbital:[['#04071c',0],['#261868',.42],['#b66bff',.5],['#142454',.6],['#040712',1]],
+  marina:[['#17123b',0],['#7d315e',.42],['#ff985e',.5],['#195e7a',.6],['#072030',1]]
  }[theme]||[['#070d24',0],['#1e3668',.45],['#102a3c',.55],['#050912',1]];
  const faces=Array.from({length:6},()=>{
   const [canvas,x]=mkCanvas(64,64);

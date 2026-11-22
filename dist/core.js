@@ -7,7 +7,7 @@
  const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  function ordinal(n){const v=Math.trunc(n),m=v%100;return v+(m>=11&&m<=13?'th':['th','st','nd','rd'][v%10]||'th')}
  function validCar(c){return Number.isInteger(c)&&c>=0&&c<6}
- function validState(m){return ['x','z','h','vf','vl','lap','idx'].every(k=>Number.isFinite(m[k]))&&Math.abs(m.x)<1200&&Math.abs(m.z)<1200&&Math.abs(m.vf)<=200&&Math.abs(m.vl)<=200&&Number.isInteger(m.idx)&&m.idx>=0&&m.idx<500&&Number.isInteger(m.lap)&&m.lap>=0&&m.lap<=3&&(m.st===undefined||(Number.isFinite(m.st)&&Math.abs(m.st)<=1.05))}
+ function validState(m){return ['x','z','h','vf','vl','lap','idx'].every(k=>Number.isFinite(m[k]))&&Math.abs(m.x)<1200&&Math.abs(m.z)<1200&&Math.abs(m.vf)<=200&&Math.abs(m.vl)<=200&&Number.isInteger(m.idx)&&m.idx>=0&&m.idx<500&&Number.isInteger(m.lap)&&m.lap>=0&&m.lap<=5&&(m.st===undefined||(Number.isFinite(m.st)&&Math.abs(m.st)<=1.05))}
  // Positive input means screen-right; the chase camera looks along world +Z.
  function headingDelta(steer,speed,handling,drift,dt){return -steer*1.9*handling*clamp(Math.abs(speed)/18,0,1)*(drift?1.4:1)/(1+Math.abs(speed)/90)*Math.sign(speed||1)*dt}
  function screenTilt(beta,gamma,angle){if(!Number.isFinite(beta)||!Number.isFinite(gamma))return null;const a=((angle||0)%360+360)%360;return a===90?beta:a===270?-beta:a===180?-gamma:gamma}
