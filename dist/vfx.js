@@ -30,7 +30,9 @@ function createRoadTextures(theme){
  const palettes={
   city:{base:'#1a2132',groove:'#121826',grain1:'#26314a',grain2:'#0e1320',kerbA:'#19e6ff',kerbB:'#101828',line:'#ffd88a',roughBase:145,roughGroove:95},
   canyon:{base:'#2c282b',groove:'#211e20',grain1:'#453836',grain2:'#1a1618',kerbA:'#ff5a45',kerbB:'#ffe0a3',line:'#fff2db',roughBase:225,roughGroove:195},
-  glacier:{base:'#1b3148',groove:'#14263a',grain1:'#386182',grain2:'#0e1c2c',kerbA:'#46f0ff',kerbB:'#dff8ff',line:'#8ef6ff',roughBase:105,roughGroove:65}
+  glacier:{base:'#1b3148',groove:'#14263a',grain1:'#386182',grain2:'#0e1c2c',kerbA:'#46f0ff',kerbB:'#dff8ff',line:'#8ef6ff',roughBase:105,roughGroove:65},
+  volcano:{base:'#1b1418',groove:'#120d10',grain1:'#3a221c',grain2:'#0e090b',kerbA:'#ff551a',kerbB:'#2a1614',line:'#ffaa33',roughBase:175,roughGroove:120},
+  orbital:{base:'#171d36',groove:'#11162a',grain1:'#2e3866',grain2:'#0d1020',kerbA:'#b66bff',kerbB:'#b6ff3b',line:'#ffe680',roughBase:115,roughGroove:70}
  };
  const p=palettes[theme]||palettes.city;
 
@@ -120,6 +122,21 @@ function createGroundTexture(theme){
   }
   for(let i=0;i<900;i++){x.fillStyle=rnd()>.5?'#ba7a5a':'#6d3b29';x.globalAlpha=.3;x.fillRect(rnd()*256,rnd()*256,3+rnd()*6,2)}
   x.globalAlpha=1;
+ }else if(theme==='volcano'){
+  x.fillStyle='#190e0e';x.fillRect(0,0,256,256);
+  let s=6191;const rnd=()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296};
+  x.strokeStyle='#ff4d1a';x.lineWidth=3;x.globalAlpha=.55;
+  for(let k=0;k<6;k++){x.beginPath();let px=rnd()*256,py=0;x.moveTo(px,py);for(let step=0;step<8;step++){px+=(rnd()-.5)*44;py+=32;x.lineTo(px,py)}x.stroke()}
+  x.strokeStyle='#ffb43b';x.lineWidth=1.2;x.globalAlpha=.4;
+  for(let k=0;k<5;k++){x.beginPath();let px=0,py=rnd()*256;x.moveTo(px,py);for(let step=0;step<8;step++){px+=32;py+=(rnd()-.5)*36;x.lineTo(px,py)}x.stroke()}
+  for(let i=0;i<500;i++){x.fillStyle=rnd()>.6?'#301816':'#0f0808';x.globalAlpha=.35;x.fillRect(rnd()*256,rnd()*256,4+rnd()*8,3+rnd()*6)}
+  x.globalAlpha=1;
+ }else if(theme==='orbital'){
+  x.fillStyle='#060a1e';x.fillRect(0,0,256,256);
+  let s=7741;const rnd=()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296};
+  for(let i=0;i<180;i++){x.fillStyle=rnd()>.5?'#1e2e66':'#382678';x.globalAlpha=.24;x.beginPath();x.arc(rnd()*256,rnd()*256,12+rnd()*28,0,PI*2);x.fill()}
+  x.strokeStyle='#b66bff28';x.lineWidth=1;x.globalAlpha=1;
+  for(let i=0;i<=256;i+=64){x.beginPath();x.moveTo(i,0);x.lineTo(i,256);x.stroke();x.beginPath();x.moveTo(0,i);x.lineTo(256,i);x.stroke()}
  }else{
   x.fillStyle='#132a44';x.fillRect(0,0,256,256);
   let s=8821;const rnd=()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296};
@@ -127,6 +144,34 @@ function createGroundTexture(theme){
   x.globalAlpha=1;
  }
  return makeTex(c,38,38,true);
+}
+
+/* ---------- BOOST PAD & JUMP RAMP TEXTURES ---------- */
+function createBoostPadTexture(){
+ const [c,x]=mkCanvas(128,256);
+ x.fillStyle='#061b26';x.fillRect(0,0,128,256);
+ x.strokeStyle='#19e6ff';x.lineWidth=6;x.strokeRect(3,3,122,250);
+ for(let y=24;y<256;y+=64){
+  x.fillStyle='#b6ff3b';
+  x.beginPath();x.moveTo(20,y+28);x.lineTo(64,y-10);x.lineTo(108,y+28);x.lineTo(108,y+44);x.lineTo(64,y+6);x.lineTo(20,y+44);x.closePath();x.fill();
+  x.fillStyle='#19e6ff';
+  x.beginPath();x.moveTo(32,y+44);x.lineTo(64,y+16);x.lineTo(96,y+44);x.lineTo(96,y+52);x.lineTo(64,y+24);x.lineTo(32,y+52);x.closePath();x.fill();
+ }
+ return makeTex(c,1,1,true);
+}
+
+function createRampTexture(){
+ const [c,x]=mkCanvas(128,256);
+ x.fillStyle='#171c2b';x.fillRect(0,0,128,256);
+ for(let y=0;y<256;y+=32){
+  x.fillStyle=(y/32)%2===0?'#ff8a1a':'#1e273d';
+  x.fillRect(0,y,16,32);x.fillRect(112,y,16,32);
+ }
+ x.fillStyle='#ffd447';
+ for(let y=34;y<256;y+=72){
+  x.beginPath();x.moveTo(26,y+24);x.lineTo(64,y-14);x.lineTo(102,y+24);x.lineTo(88,y+24);x.lineTo(64,y);x.lineTo(40,y+24);x.closePath();x.fill();
+ }
+ return makeTex(c,1,1,true);
 }
 
 /* ---------- ENERGY GUARDRAIL TEXTURE ---------- */
@@ -180,7 +225,9 @@ function createThemeEnvMap(theme){
  const stops={
   city:[['#070d24',0],['#1e3668',.42],['#55216e',.52],['#102a3c',.62],['#050912',1]],
   canyon:[['#2e5480',0],['#e89b72',.44],['#ffe5b4',.5],['#7c422c',.56],['#29120b',1]],
-  glacier:[['#041428',0],['#18667a',.4],['#72f6ff',.5],['#1c4160',.58],['#071422',1]]
+  glacier:[['#041428',0],['#18667a',.4],['#72f6ff',.5],['#1c4160',.58],['#071422',1]],
+  volcano:[['#120508',0],['#4d1412',.42],['#ff6a26',.52],['#38120c',.62],['#0e0506',1]],
+  orbital:[['#04071c',0],['#261868',.42],['#b66bff',.5],['#142454',.6],['#040712',1]]
  }[theme]||[['#070d24',0],['#1e3668',.45],['#102a3c',.55],['#050912',1]];
  const faces=Array.from({length:6},()=>{
   const [canvas,x]=mkCanvas(64,64);
@@ -312,8 +359,8 @@ function createComposer(renderer){
  const bloomOpts={minFilter:T.LinearFilter,magFilter:T.LinearFilter,format:T.RGBAFormat,depthBuffer:false,stencilBuffer:false};
 
  const sceneRT=new T.WebGLRenderTarget(w,h,rtOpts);
- const bloomA=new T.WebGLRenderTarget(Math.max(2,w>>1),Math.max(2,h>>1),bloomOpts);
- const bloomB=new T.WebGLRenderTarget(Math.max(2,w>>1),Math.max(2,h>>1),bloomOpts);
+ const bloomA=new T.WebGLRenderTarget(Math.max(2,w>>2),Math.max(2,h>>2),bloomOpts);
+ const bloomB=new T.WebGLRenderTarget(Math.max(2,w>>2),Math.max(2,h>>2),bloomOpts);
 
  const orthoCam=new T.OrthographicCamera(-1,1,1,-1,0,1);
  const quadGeo=new T.PlaneGeometry(2,2);
@@ -395,8 +442,8 @@ function createComposer(renderer){
   resize(nw,nh){
    const rw=Math.max(2,nw|0),rh=Math.max(2,nh|0);
    sceneRT.setSize(rw,rh);
-   bloomA.setSize(Math.max(2,rw>>1),Math.max(2,rh>>1));
-   bloomB.setSize(Math.max(2,rw>>1),Math.max(2,rh>>1));
+   bloomA.setSize(Math.max(2,rw>>2),Math.max(2,rh>>2));
+   bloomB.setSize(Math.max(2,rw>>2),Math.max(2,rh>>2));
   },
   setFX(bloomStrength,chroma,vignette){
    compMat.uniforms.uBloomStrength.value=bloomStrength;
@@ -439,6 +486,8 @@ function createComposer(renderer){
 const api={
  createRoadTextures,
  createGroundTexture,
+ createBoostPadTexture,
+ createRampTexture,
  createGuardrailTexture,
  createCheckeredTexture,
  createGantryBannerTexture,

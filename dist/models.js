@@ -14,12 +14,12 @@ const FINISHES={
 };
 
 const CARS=[
- {n:'SCOUT',c:0x19e6ff,spd:1.15,arm:.8,acc:1.2,hdl:1.1,len:.95,w:.9,ult:'HYPER-WARP',desc:'Phase Dash & Invulnerability',ultCdMax:20,ultDur:2.5},
- {n:'TITAN',c:0xff8a1a,spd:.9,arm:1.6,acc:.8,hdl:.8,len:1.1,w:1.2,ult:'FORTRESS BARRIER',desc:'Reflect Missiles & Heavy Ram',ultCdMax:22,ultDur:4.0},
- {n:'ASSASSIN',c:0xff2a6d,spd:1.1,arm:.7,acc:1.1,hdl:1.2,len:1.05,w:.85,ult:'SHADOW CLOAK',desc:'Stealth, Break Locks & Dual Mines',ultCdMax:20,ultDur:4.5},
- {n:'VECTOR',c:0xa66bff,spd:1,arm:1,acc:1,hdl:1,len:1,w:1,ult:'OVERCLOCK OVERDRIVE',desc:'Infinite Boost & 2x Rapid-Fire',ultCdMax:24,ultDur:5.0},
- {n:'APEX',c:0xb6ff3b,spd:1.2,arm:.75,acc:1.1,hdl:1.15,len:1.12,w:.92,ult:'HYPER-WARP',desc:'Prototype • extreme speed',ultCdMax:22,ultDur:2.5,ability:0},
- {n:'RALLY',c:0xffd470,spd:.98,arm:1.25,acc:1.18,hdl:1.18,len:.92,w:1.12,ult:'FORTRESS BARRIER',desc:'All-terrain • heavy impact',ultCdMax:24,ultDur:3.5,ability:1}
+ {n:'SCOUT',c:0x19e6ff,spd:1.15,arm:.8,acc:1.2,hdl:1.1,len:.95,w:.9,ult:'HYPER-WARP',desc:'Phase Dash & Invulnerability',ultCdMax:20,ultDur:2.5,ability:0},
+ {n:'TITAN',c:0xff8a1a,spd:.9,arm:1.6,acc:.8,hdl:.8,len:1.1,w:1.2,ult:'FORTRESS BARRIER',desc:'Reflect Missiles & Heavy Ram',ultCdMax:22,ultDur:4.0,ability:1},
+ {n:'ASSASSIN',c:0xff2a6d,spd:1.1,arm:.7,acc:1.1,hdl:1.2,len:1.05,w:.85,ult:'SHADOW CLOAK',desc:'Stealth, Break Locks & Dual Mines',ultCdMax:20,ultDur:4.5,ability:2},
+ {n:'VECTOR',c:0xa66bff,spd:1,arm:1,acc:1,hdl:1,len:1,w:1,ult:'OVERCLOCK OVERDRIVE',desc:'Infinite Boost & 2x Rapid-Fire',ultCdMax:24,ultDur:5.0,ability:3},
+ {n:'APEX',c:0xb6ff3b,spd:1.2,arm:.75,acc:1.1,hdl:1.15,len:1.12,w:.92,ult:'SLIPSTREAM SURGE',desc:'Mach Speed, Zero Slip & Sonic Wake',ultCdMax:22,ultDur:3.5,ability:4},
+ {n:'RALLY',c:0xffd470,spd:.98,arm:1.25,acc:1.18,hdl:1.18,len:.92,w:1.12,ult:'SEISMIC OVERDRIVE',desc:'All-Terrain Surge & Shockwave Pulses',ultCdMax:23,ultDur:4.5,ability:5}
 ];
 
 function applyFinish(paintMat,finishName,baseCol){
@@ -49,7 +49,7 @@ function mkCar(d,col,finish='gloss'){
  const lm=new T.MeshBasicMaterial({color:0xfff8dc});
  const tm=new T.MeshBasicMaterial({color:0xd01828});
  const ex=(pts,dep,bv)=>{const s=new T.Shape();pts.forEach(([x,y],i)=>i?s.lineTo(x,y):s.moveTo(x,y));const o=new T.ExtrudeGeometry(s,{depth:dep,bevelEnabled:true,bevelSize:bv,bevelThickness:bv,bevelSegments:3});o.translate(0,0,-dep/2);return o};
- const bx=(w,h,l,m,x,y,z,rz,parent=body)=>{const o=new T.Mesh(new T.BoxGeometry(w,h,l),m);o.position.set(x,y,z);if(rz)o.rotation.z=rz;o.castShadow=true;parent.add(o);return o};
+ const bx=(w,h,l,m,x,y,z,rz,parent=body,cast=false)=>{const o=new T.Mesh(new T.BoxGeometry(w,h,l),m);o.position.set(x,y,z);if(rz)o.rotation.z=rz;if(cast)o.castShadow=true;parent.add(o);return o};
 
  // Main chassis body & glossy cockpit canopy
  const b=new T.Mesh(ex([[-2.32,.4],[2.42,.4],[2.54,.72],[1.65,.96],[.42,1.06],[-1.52,1.12],[-2.38,.94]],1.72,.22),paint);
@@ -60,18 +60,17 @@ function mkCar(d,col,finish='gloss'){
  bx(.15,.028,2.1,trim,-.18,1.22,.85);bx(.15,.028,2.1,trim,.18,1.22,.85);
  bx(.16,.025,1.2,trim,-.16,1.69,-.2);bx(.16,.025,1.2,trim,.16,1.69,-.2);
 
- // Wheels with animated steering, spinning, glowing brake rotors & 5-spoke alloys
+ // Wheels with animated steering, spinning, glowing brake rotors & lightweight alloy spokes
  const rub=new T.MeshStandardMaterial({color:0x0f1218,roughness:.92}),rim=new T.MeshStandardMaterial({color:0xd8e0ee,metalness:1,roughness:.2});g.wh=[];
  for(const [wx,wz] of[[1.14,1.46],[-1.14,1.46],[1.14,-1.46],[-1.14,-1.46]]){
   const p=new T.Group(),w=new T.Group();
-  const t=new T.Mesh(new T.CylinderGeometry(.55,.55,.52,20),rub);
-  const r=new T.Mesh(new T.CylinderGeometry(.35,.35,.54,12),rim);
-  const disc=new T.Mesh(new T.CylinderGeometry(.28,.28,.55,16),em);
-  const h=new T.Mesh(new T.CylinderGeometry(.1,.1,.57,6),dark);
-  t.rotation.z=r.rotation.z=disc.rotation.z=h.rotation.z=PI/2;
+  const t=new T.Mesh(new T.CylinderGeometry(.55,.55,.52,14),rub);
+  const r=new T.Mesh(new T.CylinderGeometry(.35,.35,.54,10),rim);
+  const disc=new T.Mesh(new T.CylinderGeometry(.28,.28,.55,10),em);
+  t.rotation.z=r.rotation.z=disc.rotation.z=PI/2;
   t.castShadow=true;
-  w.add(t,r,disc,h);
-  for(let a=0;a<5;a++){const spoke=new T.Mesh(new T.BoxGeometry(.57,.045,.62),rim);spoke.rotation.x=a*PI/5;w.add(spoke)}
+  w.add(t,r,disc);
+  for(let a=0;a<2;a++){const spoke=new T.Mesh(new T.BoxGeometry(.57,.055,.62),rim);spoke.rotation.x=a*PI/2;w.add(spoke)}
   p.add(w);p.position.set(wx,.55,wz);g.add(p);g.wh.push({p,w,f:wz>0});
   bx(.13,.3,1.34,paint,wx*1.02,.96,wz);
  }

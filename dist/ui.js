@@ -5,7 +5,7 @@
  const prefs=window.KartSettings={...defaults,...saved};if(!['low','medium','high'].includes(prefs.quality))prefs.quality=defaults.quality;if(!['rookie','normal','expert'].includes(prefs.difficulty))prefs.difficulty='normal';if(!['clear','rain','storm','dynamic'].includes(prefs.weather))prefs.weather='clear';prefs.volume=Number.isFinite(+prefs.volume)?KartCore.clamp(+prefs.volume,0,100):45;prefs.keys=typeof prefs.keys==='object'&&prefs.keys?prefs.keys:{};
  const $=id=>document.getElementById(id);let toastTimer;
  window.toast=text=>{clearTimeout(toastTimer);$('toast').textContent=text;$('toast').hidden=false;toastTimer=setTimeout(()=>$('toast').hidden=true,4200)};
- const tracks=['NEON STREETS · TECHNICAL','DESERT SWITCHBACKS · FAST','ALPINE RIDGE · LOW GRIP'];
+ const tracks=['NEON STREETS · TECHNICAL','DESERT SWITCHBACKS · FAST','ALPINE RIDGE · LOW GRIP','VOLCANIC CRATER · HIGH ELEVATION','SKY VIADUCT · HYPER SPEED'];
  window.updateTrack=i=>$('track-info').textContent=tracks[i];
  window.updateVehicle=(d,i)=>{$('vehicle-name').textContent=d.n;$('vehicle-desc').textContent=d.desc;$('v-speed').textContent=Math.round(60*d.spd*3.6);$('v-armor').textContent=Math.round(d.arm*100);$('vehicle-name').style.color='#'+d.c.toString(16).padStart(6,'0')};
  window.updateCareer=()=>{let c;try{c=KartCore.career(localStorage.getItem('tk'))}catch{c=KartCore.career(null)}$('career').textContent=c.r?`${c.r} RUNS / ${c.w} WINS / ${c.c.toLocaleString()} CREDITS`:'YOUR CAREER STARTS HERE'};updateCareer();

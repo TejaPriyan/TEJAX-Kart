@@ -4,13 +4,13 @@ const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),
 const {WebSocketServer,WebSocket}=require('ws'),Core=require('./dist/core'),T=require('./dist/vendor/three.min.js');
 const Combat=require('./dist/combat');
 const data=require('./dist/track-data.json'),root=path.join(__dirname,'dist'),rooms=new Map();let uid=0;
-const ARM=[.8,1.6,.7,1,.75,1.25],ABILITY=[0,1,2,3,0,1],DURATION=[2.5,4,4.5,5,2.5,3.5],COOLDOWN=[20,22,20,24,22,24];
+const ARM=[.8,1.6,.7,1,.75,1.25],ABILITY=[0,1,2,3,4,5],DURATION=[2.5,4,4.5,5,3.5,4.5],COOLDOWN=[20,22,20,24,22,23];
 const QUICK_CHATS=['🏁 Ready!',"🔥 Let's race!",'🚀 Watch out!','🛡️ Shield up!','👏 Good race!','🔄 Rematch?'];
 const tracks=data.map(td=>{const c=new T.CatmullRomCurve3(td.pts.map(p=>new T.Vector3(...p)),true,'catmullrom',.5);const p=c.getSpacedPoints(500);p.pop();return p});
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.webmanifest':'application/manifest+json','.svg':'image/svg+xml','.png':'image/png','.xml':'application/xml; charset=utf-8','.txt':'text/plain; charset=utf-8'};
 const server=http.createServer((req,res)=>{
  let pathname;try{pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname)}catch{res.writeHead(400);return res.end()}
- if(pathname==='/api/health'){res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true,service:'tejax-kart-lan',version:'6.3.0'}))}
+ if(pathname==='/api/health'){res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({ok:true,service:'tejax-kart-lan',version:'6.4.0'}))}
  if(pathname==='/api/rooms'&&req.method==='GET'){
   const list=[...rooms.values()].filter(r=>r.isPublic&&!r.live&&r.players.length<6).map(r=>({code:r.code,hostName:r.players[0]?.name||'Racer',track:r.track,mode:r.mode,players:r.players.length,maxPlayers:6,live:0}));
   res.writeHead(200,{'Content-Type':'application/json'});return res.end(JSON.stringify({rooms:list}));
@@ -68,8 +68,8 @@ function message(s,m){if(!m||typeof m!=='object'||typeof m.t!=='string')return;c
  if(m.t==='s'){
   if(!Core.validState(m))return;
   const prev=s.state,p=tracks[r.track][m.idx],dist=Math.hypot(m.x-prev.x,m.z-prev.z),seconds=Math.min(2,Math.max(.05,(now-s.lastState)/1000));
-  if(dist>seconds*180+12)return;
-  if(Math.hypot(m.x-p.x,m.z-p.z)>23)return;
+  if(dist>seconds*210+18)return;
+  if(Math.hypot(m.x-p.x,m.z-p.z)>24)return;
   s.seenState=true;s.lastState=now;s.state={x:m.x,z:m.z,h:m.h,vf:m.vf,vl:m.vl,idx:m.idx,lap:s.lap,st:Core.clamp(Number.isFinite(m.st)?m.st:0,-1,1),bo:m.bo?1:0,br:m.br?1:0};
   if(now>=r.started&&!s.finish){const delta=(m.idx-prev.idx+500)%500;if(delta<40&&s.checkpoint<3&&m.idx>=120*(s.checkpoint+1)&&m.idx<120*(s.checkpoint+1)+50)s.checkpoint++;
    if(prev.idx>450&&m.idx<50&&s.checkpoint===3){s.lap++;s.checkpoint=0;if(s.lap===3){r.finish.push(s.id);s.finish=r.finish.length}broadcast(r,{t:'progress',id:s.id,lap:s.lap,place:s.finish});if(r.players.every(p=>p.finish))r.live=false}
@@ -78,7 +78,7 @@ function message(s,m){if(!m||typeof m!=='object'||typeof m.t!=='string')return;c
  }
  if(now<r.started||s.deadUntil>now||s.finish)return;
  if(m.t==='ability'){
-  if(now<s.abilityReady)return;s.abilityReady=now+COOLDOWN[s.car]*1000;s.abilityUntil=now+DURATION[s.car]*1000;const ty=ABILITY[s.car];if(ty===0||ty===1)s.invUntil=s.abilityUntil;broadcast(r,{t:'ability',id:s.id});if(ty===2)for(const p of r.shots)if(p.target===s)p.target=null;return;
+  if(now<s.abilityReady)return;s.abilityReady=now+COOLDOWN[s.car]*1000;s.abilityUntil=now+DURATION[s.car]*1000;const ty=ABILITY[s.car];if(ty===0||ty===1||ty===5)s.invUntil=s.abilityUntil;else if(ty===4)s.invUntil=now+Math.min(1400,DURATION[s.car]*450);if(ty===5)s.seismicAt=now;broadcast(r,{t:'ability',id:s.id});if(ty===2)for(const p of r.shots)if(p.target===s)p.target=null;return;
  }
  if(m.t==='ev'){
   if(![0,1,2].includes(m.k)||!Number.isFinite(m.a))return;
@@ -103,7 +103,8 @@ function message(s,m){if(!m||typeof m!=='object'||typeof m.t!=='string')return;c
 }
 wss.on('connection',s=>{s.id=++uid;s.rateAt=Date.now();s.rate=0;s.alive=true;s.idleTimer=setTimeout(()=>{if(!s.room&&s.readyState===WebSocket.OPEN)s.close(1008,'Idle join timeout')},getIdleJoinTimeoutMs());s.idleTimer.unref?.();s.on('pong',()=>s.alive=true);s.on('message',data=>{try{message(s,JSON.parse(data))}catch{send(s,{t:'err',m:'Invalid message.'})}});s.on('close',()=>{if(s.idleTimer){clearTimeout(s.idleTimer);s.idleTimer=null}leave(s)});s.on('error',()=>{});if(wss.clients.size>600)s.close(1013,'Server busy')});
 let last=Date.now();const tick=setInterval(()=>{const now=Date.now(),dt=Math.min(.1,(now-last)/1000);last=now;for(const r of rooms.values()){if(!r.live)continue;for(const s of r.players){if(s.deadUntil&&now>=s.deadUntil){s.deadUntil=0;s.hp=100;health(s)}}
- for(let i=0;i<r.players.length;i++)for(let j=i+1;j<r.players.length;j++){const a=r.players[i],b=r.players[j],key=a.id+':'+b.id;if(a.deadUntil>now||b.deadUntil>now||now<(r.contacts.get(key)||0)||Math.hypot(a.state.x-b.state.x,a.state.z-b.state.z)>=3.6)continue;r.contacts.set(key,now+650);for(const [attacker,victim]of[[a,b],[b,a]])if(attacker.abilityUntil>now&&[0,1].includes(ABILITY[attacker.car]))damage(victim,ABILITY[attacker.car]===0?15:28,attacker)}
+ for(const s of r.players){if(s.abilityUntil>now&&ABILITY[s.car]===5&&now>=(s.seismicAt||0)){s.seismicAt=now+850;for(const other of r.players)if(other!==s&&other.deadUntil<=now&&Math.hypot(other.state.x-s.state.x,other.state.z-s.state.z)<18)damage(other,14,s)}}
+ for(let i=0;i<r.players.length;i++)for(let j=i+1;j<r.players.length;j++){const a=r.players[i],b=r.players[j],key=a.id+':'+b.id;if(a.deadUntil>now||b.deadUntil>now||now<(r.contacts.get(key)||0))continue;const dist=Math.hypot(a.state.x-b.state.x,a.state.z-b.state.z);if(dist<6.5&&((a.abilityUntil>now&&ABILITY[a.car]===4)||(b.abilityUntil>now&&ABILITY[b.car]===4))){r.contacts.set(key,now+650);if(a.abilityUntil>now&&ABILITY[a.car]===4)damage(b,16,a);if(b.abilityUntil>now&&ABILITY[b.car]===4)damage(a,16,b);continue}if(dist>=3.6)continue;r.contacts.set(key,now+650);for(const [attacker,victim]of[[a,b],[b,a]])if(attacker.abilityUntil>now&&[0,1].includes(ABILITY[attacker.car]))damage(victim,ABILITY[attacker.car]===0?15:28,attacker)}
  for(const p of r.shots){if(now>=p.until)continue;const ox=p.x,oy=p.y,oz=p.z;if(p.ty){if(p.target&&(p.target.deadUntil>now||ABILITY[p.target.car]===2&&p.target.abilityUntil>now))p.target=null;if(p.target&&p.target.deadUntil<=now){let e=Math.atan2(p.target.state.x-p.x,p.target.state.z-p.z)-p.a;e=Math.atan2(Math.sin(e),Math.cos(e));p.a+=Core.clamp(e,-2.5*dt,2.5*dt);p.y+=Core.clamp(tracks[r.track][p.target.state.idx].y+1.2-p.y,-30*dt,30*dt)}p.speed=Math.min(130,p.speed+50*dt)}else{const points=tracks[r.track];let best=p.idx;for(let k=-4;k<=4;k++){const i=(p.idx+k+500)%500;if(Math.hypot(points[i].x-p.x,points[i].z-p.z)<Math.hypot(points[best].x-p.x,points[best].z-p.z))best=i}p.idx=best;p.y+=p.vy*dt}p.x+=Math.sin(p.a)*p.speed*dt;p.z+=Math.cos(p.a)*p.speed*dt;
  const ground=tracks[r.track][p.idx];if(!p.ty&&Math.hypot(p.x-ground.x,p.z-ground.z)<14&&p.y<ground.y+.1)p.until=0;
  if(p.until>now)for(const s of r.players){if(s===p.owner||s.deadUntil>now)continue;const y=tracks[r.track][s.state.idx].y+1.7;if(Core.segmentDistance(ox,oy,oz,p.x,p.y,p.z,s.state.x,y,s.state.z)<(p.ty?3.5:2.8)){if(ABILITY[s.car]===1&&s.abilityUntil>now){p.target=p.owner;p.owner=s;p.a+=Math.PI;p.vy=-p.vy}else{damage(s,p.damage,p.owner);p.until=0}break}}

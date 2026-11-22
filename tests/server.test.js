@@ -46,7 +46,7 @@ test('real WebSocket room lifecycle, security, and authority checks',async t=>{
  a.send({t:'rematch'});await a.next('reset');await a.next('room');await b.next('reset');await b.next('room');assert.equal(r.live,false);
  // Phase 3 lobby upgrades: ready, config, quick-chat, public rooms & quickmatch REST APIs
  b.send({t:'ready'});const rReady=await a.next('room');await b.next('room');assert.equal(rReady.players[1].ready,true);
- a.send({t:'config',track:0,mode:2,fillBots:true,isPublic:true});const rCfg=await b.next('room');await a.next('room');assert.equal(rCfg.track,0);assert.equal(rCfg.mode,2);assert.equal(rCfg.fillBots,true);
+ a.send({t:'config',track:4,mode:2,fillBots:true,isPublic:true});const rCfg=await b.next('room');await a.next('room');assert.equal(rCfg.track,4);assert.equal(rCfg.mode,2);assert.equal(rCfg.fillBots,true);
  a.send({t:'chat',i:0});const chatMsg=await b.next('chat');assert.equal(chatMsg.text,'🏁 Ready!');
  const pubRooms=await fetch('http://127.0.0.1:'+port+'/api/rooms').then(x=>x.json());assert.ok(pubRooms.rooms.some(x=>x.code===room.code));
  const qm=await fetch('http://127.0.0.1:'+port+'/api/quickmatch',{method:'POST'}).then(x=>x.json());assert.equal(qm.action,'join');assert.equal(qm.code,room.code);

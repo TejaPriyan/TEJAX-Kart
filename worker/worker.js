@@ -7,12 +7,16 @@ const TRACK_PTS = [
   // 1: Crimson Canyon
   [[0,1,0],[140,6.5,-60],[260,14,-30],[320,9.5,120],[250,3,220],[120,8.5,180],[30,15,290],[-100,10.5,350],[-220,4.5,270],[-280,8.5,130],[-180,3.5,30],[-90,1.5,-40]],
   // 2: Glacier Ridge
-  [[0,1.5,0],[130,3,-80],[250,8.5,-40],[290,14,80],[200,17.5,190],[90,12,170],[-20,6,220],[-140,3.5,250],[-230,9,180],[-260,15,70],[-160,8.5,-20],[-60,3,-50]]
+  [[0,1.5,0],[130,3,-80],[250,8.5,-40],[290,14,80],[200,17.5,190],[90,12,170],[-20,6,220],[-140,3.5,250],[-230,9,180],[-260,15,70],[-160,8.5,-20],[-60,3,-50]],
+  // 3: Obsidian Caldera
+  [[0,2,0],[150,5,-45],[290,13,20],[340,21,150],[250,15,280],[110,8,240],[-10,16,330],[-160,22,300],[-280,12,190],[-250,5,50],[-140,3,-65]],
+  // 4: Orbital Skyway
+  [[0,10,0],[180,16,-30],[330,26,55],[360,22,210],[240,12,330],[70,18,295],[-80,28,365],[-245,24,285],[-310,14,140],[-210,9,10],[-120,11,-85]]
 ];
 const ARM = [0.8, 1.6, 0.7, 1, 0.75, 1.25];
-const ABILITY = [0, 1, 2, 3, 0, 1];
-const DURATION = [2.5, 4, 4.5, 5, 2.5, 3.5];
-const COOLDOWN = [20, 22, 20, 24, 22, 24];
+const ABILITY = [0, 1, 2, 3, 4, 5];
+const DURATION = [2.5, 4, 4.5, 5, 3.5, 4.5];
+const COOLDOWN = [20, 22, 20, 24, 22, 23];
 const POWERS = [
   { field: 'hp', value: 40 },
   { field: 'bo', value: 100 },
@@ -243,7 +247,7 @@ export class Matchmaker extends DurableObject {
       return { action: 'join', code: open[0].code, track: open[0].track, mode: open[0].mode };
     }
     const code = makeRoomCode();
-    const t = Number.isInteger(track) && track >= 0 && track < 3 ? track : 0;
+    const t = Number.isInteger(track) && track >= 0 && track < TRACKS.length ? track : 0;
     const m = [0, 1, 2].includes(mode) ? mode : 1;
     this.ctx.storage.sql.exec(
       'INSERT INTO public_rooms (code, host_name, track, mode, players, max_players, live, updated_at) VALUES (?, ?, ?, ?, 1, 6, 0, ?)',
@@ -253,7 +257,7 @@ export class Matchmaker extends DurableObject {
   }
 
   async getLeaderboard(track) {
-    const t = Number.isInteger(track) && track >= 0 && track < 3 ? track : 0;
+    const t = Number.isInteger(track) && track >= 0 && track < TRACKS.length ? track : 0;
     return this.ctx.storage.sql.exec(
       `SELECT id, track, name, car, paint, time_ms AS timeMs, best_lap_ms AS bestLapMs,
               CASE WHEN ghost IS NOT NULL AND length(ghost) > 2 THEN 1 ELSE 0 END AS hasGhost,
@@ -279,7 +283,7 @@ export class Matchmaker extends DurableObject {
     const car = body?.car | 0;
     const timeMs = Math.round(Number(body?.timeMs));
     const bestLapMs = Math.round(Number(body?.bestLapMs || timeMs / 3));
-    if (track < 0 || track >= 3 || !validCar(car)) return { error: 'Invalid track or vehicle.' };
+    if (track < 0 || track >= TRACKS.length || !validCar(car)) return { error: 'Invalid track or vehicle.' };
     if (!Number.isFinite(timeMs) || timeMs < 25000 || timeMs > 600000) return { error: 'Out-of-range race time.' };
     if (!Number.isFinite(bestLapMs) || bestLapMs < 7000 || bestLapMs > timeMs) return { error: 'Out-of-range lap time.' };
 
@@ -550,12 +554,30 @@ export class RaceRoom extends DurableObject {
     }
 
     if (this.mode !== 0) {
+      for (const s of plist) {
+        if (s.eliminated || s.deadUntil > now) continue;
+        if (s.abilityUntil > now && ABILITY[s.car] === 5 && now >= (s.seismicAt || 0)) {
+          s.seismicAt = now + 850;
+          for (const other of plist) {
+            if (other !== s && !other.eliminated && other.deadUntil <= now && Math.hypot(other.state.x - s.state.x, other.state.z - s.state.z) < 18) {
+              this.applyDamage(other, 14, s);
+            }
+          }
+        }
+      }
       for (let i = 0; i < plist.length; i++) {
         for (let j = i + 1; j < plist.length; j++) {
           const a = plist[i], b = plist[j], key = a.id + ':' + b.id;
           if (a.eliminated || b.eliminated || a.deadUntil > now || b.deadUntil > now) continue;
           if (now < (this.contacts.get(key) || 0)) continue;
-          if (Math.hypot(a.state.x - b.state.x, a.state.z - b.state.z) >= 3.6) continue;
+          const dist = Math.hypot(a.state.x - b.state.x, a.state.z - b.state.z);
+          if (dist < 6.5 && ((a.abilityUntil > now && ABILITY[a.car] === 4) || (b.abilityUntil > now && ABILITY[b.car] === 4))) {
+            this.contacts.set(key, now + 650);
+            if (a.abilityUntil > now && ABILITY[a.car] === 4) this.applyDamage(b, 16, a);
+            if (b.abilityUntil > now && ABILITY[b.car] === 4) this.applyDamage(a, 16, b);
+            continue;
+          }
+          if (dist >= 3.6) continue;
           this.contacts.set(key, now + 650);
           for (const [attacker, victim] of [[a, b], [b, a]]) {
             if (attacker.abilityUntil > now && [0, 1].includes(ABILITY[attacker.car])) {
@@ -705,8 +727,8 @@ export class RaceRoom extends DurableObject {
       const prev = p.state, pt = TRACKS[this.track][m.idx];
       const dist = Math.hypot(m.x - prev.x, m.z - prev.z);
       const seconds = Math.min(2, Math.max(0.05, (now - p.lastState) / 1000));
-      if (p.seenState && dist > seconds * 185 + 14) return;
-      if (Math.hypot(m.x - pt.x, m.z - pt.z) > 24) return;
+      if (p.seenState && dist > seconds * 210 + 18) return;
+      if (Math.hypot(m.x - pt.x, m.z - pt.z) > 25) return;
       p.seenState = true; p.lastState = now;
       p.state = {
         x: m.x, z: m.z, h: m.h, vf: m.vf, vl: m.vl, idx: m.idx, lap: p.lap,
@@ -735,7 +757,9 @@ export class RaceRoom extends DurableObject {
       p.abilityReady = now + COOLDOWN[p.car] * 1000;
       p.abilityUntil = now + DURATION[p.car] * 1000;
       const ty = ABILITY[p.car];
-      if (ty === 0 || ty === 1) p.invUntil = p.abilityUntil;
+      if (ty === 0 || ty === 1 || ty === 5) p.invUntil = p.abilityUntil;
+      else if (ty === 4) p.invUntil = now + Math.min(1400, DURATION[p.car] * 450);
+      if (ty === 5) p.seismicAt = now;
       this.broadcast({ t: 'ability', id: p.id });
       if (ty === 2) for (const s of this.shots) if (s.target === p) s.target = null;
       return;
@@ -832,7 +856,7 @@ export default {
     }
 
     if (url.pathname === '/api/health' || url.pathname === '/') {
-      return Response.json({ ok: true, service: 'tejax-kart-mp', version: '6.3.0' }, { headers: cors });
+      return Response.json({ ok: true, service: 'tejax-kart-mp', version: '6.4.0' }, { headers: cors });
     }
 
     if (origin && !isAllowedOrigin(origin, env)) {
