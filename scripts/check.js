@@ -1,6 +1,6 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
-const root=path.join(__dirname,'../dist'),origin='https://tejax-kart-apex.greenlarch1024.chatgpt.site';
+const root=path.join(__dirname,'../dist'),origin='https://tejax-kart.vercel.app';
 function walk(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(path.join(dir,e.name)):[path.join(dir,e.name)])}
 const files=walk(root),titles=new Set();let links=0;
 for(const file of files){const source=fs.readFileSync(file,'utf8');if(file.endsWith('.js'))new vm.Script(source,{filename:file});if(!file.endsWith('.html'))continue;

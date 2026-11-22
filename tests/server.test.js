@@ -34,6 +34,7 @@ test('real WebSocket room lifecycle, security, and authority checks',async t=>{
  message(host,{t:'s',...host.state,idx:-1});assert.equal(host.state.idx,3);
  host.seenState=true;message(host,{t:'s',...host.state,x:1000,z:1000});assert.notEqual(host.state.x,1000);
  message(host,{t:'s',...host.state,lap:3,fin:1});assert.equal(host.lap,0);assert.equal(host.finish,0);
+ message(host,{t:'s',...host.state,st:0.65,bo:1,br:0});assert.equal(host.state.st,0.65);assert.equal(host.state.bo,1);assert.equal(host.state.br,0);
  message(host,{t:'ability'});const ready=host.abilityReady;message(host,{t:'ability'});assert.equal(host.abilityReady,ready);assert.ok(ready>Date.now());
  message(host,{t:'pickup',index:7});assert.equal(r.pickups[7].ready,0);
  const c=await connect();c.send({t:'join',code:room.code,name:'Late',car:0});assert.match((await c.next('err')).m,/already racing/);

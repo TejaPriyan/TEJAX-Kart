@@ -1,4 +1,4 @@
-window.KartModels=(()=>{const T=THREE,PI=Math.PI,customPaint=null;const k=document.createElement('canvas');k.width=k.height=64;const x=k.getContext('2d'),gradient=x.createRadialGradient(32,32,0,32,32,32);gradient.addColorStop(0,'white');gradient.addColorStop(1,'transparent');x.fillStyle=gradient;x.fillRect(0,0,64,64);const soft=new T.CanvasTexture(k);
+window.KartModels=(()=>{const T=THREE,PI=Math.PI;const k=document.createElement('canvas');k.width=k.height=64;const x=k.getContext('2d'),gradient=x.createRadialGradient(32,32,0,32,32,32);gradient.addColorStop(0,'#fff');gradient.addColorStop(.35,'#fffa');gradient.addColorStop(1,'#fff0');x.fillStyle=gradient;x.fillRect(0,0,64,64);const soft=new T.CanvasTexture(k);
 const CARS=[
  {n:'SCOUT',c:0x19e6ff,spd:1.15,arm:.8,acc:1.2,hdl:1.1,len:.95,w:.9,ult:'HYPER-WARP',desc:'Phase Dash & Invulnerability',ultCdMax:20,ultDur:2.5},
  {n:'TITAN',c:0xff8a1a,spd:.9,arm:1.6,acc:.8,hdl:.8,len:1.1,w:1.2,ult:'FORTRESS BARRIER',desc:'Reflect Missiles & Heavy Ram',ultCdMax:22,ultDur:4.0},
@@ -7,8 +7,8 @@ const CARS=[
  {n:'APEX',c:0xb6ff3b,spd:1.2,arm:.75,acc:1.1,hdl:1.15,len:1.12,w:.92,ult:'HYPER-WARP',desc:'Prototype • extreme speed',ultCdMax:22,ultDur:2.5,ability:0},
  {n:'RALLY',c:0xffd470,spd:.98,arm:1.25,acc:1.18,hdl:1.18,len:.92,w:1.12,ult:'FORTRESS BARRIER',desc:'All-terrain • heavy impact',ultCdMax:24,ultDur:3.5,ability:1}
 ];
-function mkCar(d, col, isP){
- const carCol = col !== undefined ? col : (isP && customPaint ? parseInt(customPaint.slice(1), 16) : d.c);
+function mkCar(d, col){
+ const carCol = col !== undefined ? col : d.c;
  const g=new T.Group();
  const paint=new T.MeshPhysicalMaterial({color:carCol,metalness:.48,roughness:.3,clearcoat:1,clearcoatRoughness:.2});
  const dark=new T.MeshStandardMaterial({color:0x090e18,metalness:1,roughness:.12});
@@ -88,4 +88,4 @@ function mkCar(d, col, isP){
  g.paint=paint;g.base=new T.Color(carCol);g.ug=ug;g.tm=tm;g.scale.set(d.w,g.scale.y,d.len);return g;
 }
 
-return {cars:CARS,create:mkCar}})();
+return {cars:CARS,create:mkCar,soft}})();

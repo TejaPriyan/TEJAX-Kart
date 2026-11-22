@@ -13,7 +13,6 @@ button:focus-visible{outline:2px solid var(--m);outline-offset:3px}
 /* Menu & End */
 #menu,#end{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:linear-gradient(#070b18ee,#070b1888 60%,#070b18ee);text-align:center;padding:16px;z-index:10}
 #menu h1{margin:0;font:italic 900 clamp(48px,9vw,110px)/1 var(--font);letter-spacing:.08em;text-transform:uppercase}
-#menu h1 b{color:var(--c);margin-left:.2em;text-shadow:0 0 28px #19e6ff88,0 0 60px #19e6ff44}
 #menu p{max-width:760px;margin:0;color:#8fa3c4;font-size:12px;line-height:1.6}
 #cars{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
 .cc{width:190px;padding:14px;background:#0d1426cc;border-top:3px solid #2a3350;cursor:pointer;text-align:left;transition:all .25s}
@@ -115,9 +114,6 @@ button:focus-visible{outline:2px solid var(--m);outline-offset:3px}
 #end h2{margin:0;font:italic 900 clamp(40px,7vw,84px) var(--font);color:var(--c);text-shadow:0 0 30px #19e6ff66}
 #end p{margin:0;font-size:16px;line-height:1.8;color:#cfe0ff}
 
-/* Section labels */
-.sec-label{font:italic 700 11px var(--font);letter-spacing:.14em;color:#8fa3c4;text-transform:uppercase;margin-bottom:-12px}
-
 /* Track Selector */
 #tracks{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
 .tb-track{font-size:13px;padding:9px 18px;background:#0d1426cc;color:#cfe0ff;border:1px solid #2a3350;transition:all .2s;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%)}
@@ -136,8 +132,6 @@ button:focus-visible{outline:2px solid var(--m);outline-offset:3px}
 .mb:hover{background:#2a3460}
 .mb.on{background:var(--m);color:#fff;box-shadow:0 0 15px #ff2a8a44}
 #modes2{display:flex;gap:10px}
-.mb2{font-size:14px;padding:9px 22px;background:#1a2440;color:#cfe0ff;transition:all .2s}
-.mb2:hover{background:#2a3460}
 
 #bestlap{color:var(--c);font-size:16px;align-self:center}
 #mubtn{cursor:pointer;pointer-events:auto;font-size:18px;align-self:center;transition:transform .15s}

@@ -4,7 +4,8 @@ Free 3D arcade racing for desktop browsers and an installable mobile web app, wi
 
 ## Play
 
-- Public website: https://tejax-kart-apex.greenlarch1024.chatgpt.site/
+- Public website: https://tejax-kart.vercel.app/
+- GitHub Pages mirror: https://tejapriyan.github.io/TEJAX-Kart/
 - Desktop: open the game in the browser. There is no Windows download or installer.
 - Mobile: use Install / Add to Home Screen. Open Settings, enable tilt, allow motion access and calibrate. Optional auto-acceleration, sensitivity, inversion and touch pedals are included. Wait for Offline ready before disconnecting.
 - This is a web app, not an APK/IPA or app-store release. Motion support varies by device; touch controls remain available. A physical Android/iPhone acceptance check is still recommended before advertising device-specific compatibility.
@@ -39,17 +40,17 @@ Race and Time trial disable weapons. Combat is a three-lap race, Elimination is 
 
 ### GitHub Pages
 
-In repository Settings → Pages, select **GitHub Actions** as the source. `.github/workflows/pages.yml` builds and checks the game, uploads only `dist/`, and publishes it after pushes to `main`. The project URL is https://tejapriyan.github.io/TEJAX-Kart/. For an existing `main / (root)` source, the root `index.html` forwards visitors to the game website in `dist/`, and `.nojekyll` preserves the static files. The workflow reads the selected publishing source and skips its deploy job in branch mode, preventing competing deployments. The Actions source is preferred because it publishes only the game assets.
+In repository Settings → Pages, select **GitHub Actions** as the source. `.github/workflows/pages.yml` builds and checks the game, uploads only `dist/`, and publishes it after pushes to `main`. The project URL is https://tejapriyan.github.io/TEJAX-Kart/.
 
 ### Vercel
 
-Import this repository with the repository root as Root Directory. `vercel.json` selects the **Other** framework preset, runs `npm run build && npm run check`, and publishes `dist/` as static files. The existing project domain is https://tejax-kart.vercel.app/. The browser runs the game; the optional LAN `server.js` is excluded from Vercel uploads. Do not configure a catch-all server function or Express preset for this static deployment.
+Import this repository with the repository root as Root Directory. `vercel.json` selects the **Other** framework preset, runs `npm run build && npm run check`, and publishes `dist/` as static files. The production domain is https://tejax-kart.vercel.app/. The browser runs the game; the optional LAN `server.js` is excluded from Vercel uploads. Do not configure a catch-all server function or Express preset for this static deployment.
 
 Use this repository description: **Free 3D arcade racing game with automatic combat targeting, six cars, three circuits, and installable mobile tilt controls.** Suggested topics: `racing-game`, `threejs`, `webgl`, `browser-game`, `pwa`, `javascript`.
 
-### Existing Sites publication and SEO
+### Static hosting and SEO
 
-`dist/` is the complete static site. Host it over HTTPS. `.openai/hosting.json` binds this working copy to its existing Sites project; do not create another project for routine updates. Keep the canonical origin in the HTML, sitemap.xml, robots.txt, llms.txt and scripts/check.js aligned if you move domains. Rebuild after any shipped file change: `npm run build` hashes the assets and generates `dist/sw.js`. Users activate new versions with the Update game button between races.
+`dist/` is the complete static site. Host it over HTTPS. Keep the canonical origin in the HTML, sitemap.xml, robots.txt, llms.txt and scripts/check.js aligned if you move domains. Rebuild after any shipped file change: `npm run build` hashes the assets and generates `dist/sw.js`. Users activate new versions with the Update game button between races.
 
 The website includes static guides, factual JSON-LD, canonical and social metadata, sitemap.xml, robots.txt and an optional llms.txt reading aid. These support SEO and clear answers for search/AI systems; none guarantees indexing, rich results or rankings. No Search Console property or sitemap submission is configured by the code. Google guidance: https://developers.google.com/search/docs/appearance/ai-features
 

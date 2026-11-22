@@ -54,7 +54,7 @@ function message(s,m){if(!m||typeof m!=='object'||typeof m.t!=='string')return;c
   const prev=s.state,p=tracks[r.track][m.idx],dist=Math.hypot(m.x-prev.x,m.z-prev.z),seconds=Math.min(2,Math.max(.05,(now-s.lastState)/1000));
   if(dist>seconds*180+12)return;
   if(Math.hypot(m.x-p.x,m.z-p.z)>23)return;
-  s.seenState=true;s.lastState=now;s.state={x:m.x,z:m.z,h:m.h,vf:m.vf,vl:m.vl,idx:m.idx,lap:s.lap};
+  s.seenState=true;s.lastState=now;s.state={x:m.x,z:m.z,h:m.h,vf:m.vf,vl:m.vl,idx:m.idx,lap:s.lap,st:Core.clamp(Number.isFinite(m.st)?m.st:0,-1,1),bo:m.bo?1:0,br:m.br?1:0};
   if(now>=r.started&&!s.finish){const delta=(m.idx-prev.idx+500)%500;if(delta<40&&s.checkpoint<3&&m.idx>=120*(s.checkpoint+1)&&m.idx<120*(s.checkpoint+1)+50)s.checkpoint++;
    if(prev.idx>450&&m.idx<50&&s.checkpoint===3){s.lap++;s.checkpoint=0;if(s.lap===3){r.finish.push(s.id);s.finish=r.finish.length}broadcast(r,{t:'progress',id:s.id,lap:s.lap,place:s.finish});if(r.players.every(p=>p.finish))r.live=false}
   }
