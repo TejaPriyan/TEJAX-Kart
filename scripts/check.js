@@ -5,9 +5,9 @@ function walk(dir){return fs.readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.
 const files=walk(root),titles=new Set();let links=0;
 for(const file of files){const source=fs.readFileSync(file,'utf8');if(file.endsWith('.js'))new vm.Script(source,{filename:file});if(!file.endsWith('.html'))continue;
  const title=source.match(/<title>(.*?)<\/title>/)?.[1];assert.ok(title&&!titles.has(title),'Unique page title: '+file);titles.add(title);
- assert.match(source,/<html lang="en"/);assert.match(source,/<meta name="description" content="[^"]{40,}"/);assert.match(source,/<link rel="canonical" href="https:\/\//);assert.match(source,/<meta property="og:image"/);assert.match(source,/<h1>/);
+ assert.match(source,/<html\s+lang="en"/);assert.match(source,/<meta\s+name="description"\s+content="[^"]{40,}"/);assert.match(source,/<link\s+rel="canonical"\s+href="https:\/\//);assert.match(source,/<meta\s+property="og:image"/);assert.match(source,/<h1>/);
  const ids=[...source.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]);assert.equal(new Set(ids).size,ids.length,'Duplicate HTML ids: '+file);
- for(const block of source.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs))assert.equal(JSON.parse(block[1])['@context'],'https://schema.org');
+ for(const block of source.matchAll(/<script\s+type="application\/ld\+json">(.*?)<\/script>/gs))assert.equal(JSON.parse(block[1])['@context'],'https://schema.org');
  for(const match of source.matchAll(/(?:src|href)="([^"]+)"/g)){const link=match[1];if(/^(https?:|data:|mailto:|#)/.test(link))continue;const [pathname,fragment]=link.split('#'),target=path.resolve(path.dirname(file),pathname.split('?')[0]);assert.ok(target.startsWith(root+path.sep)&&fs.existsSync(target),'Missing local link '+link+' in '+file);if(fragment&&target.endsWith('.html'))assert.ok(fs.readFileSync(target,'utf8').includes('id="'+fragment+'"'),'Missing anchor '+link);links++}
 }
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'manifest.webmanifest')));for(const icon of manifest.icons)assert.ok(fs.existsSync(path.join(root,icon.src)));assert.equal(manifest.display,'standalone');
